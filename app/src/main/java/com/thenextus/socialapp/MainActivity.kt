@@ -37,14 +37,15 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        /*
         val trans = supportFragmentManager.beginTransaction().apply {
             replace(R.id.fragmentContainer, LoginFragment())
             addToBackStack(null)
         }
-        trans.commit()
+        trans.commit()*/
 
 
-        //binding.bottomNavigation.setupWithNavController(navController)
+        binding.bottomNavigation.setupWithNavController(navController)
     }
 
     private fun changePage(test: NavDirections) { Navigation.findNavController(binding.fragmentContainer).navigate(test) }
