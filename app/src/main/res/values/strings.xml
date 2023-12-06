@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">SocialApp</string>
+
+    <string name="menu_profileText">Profil</string>
+    <string name="menu_homeText">Ana Sayfa</string>
+
+    <string name="recyclerview_nameLabel">Ad - Soyad:</string>
+    <string name="recyclerview_name">Social App</string>
+
+    <string name="recyclerview_emailLabel">E-mail:</string>
+    <string name="recyclerview_email">socialapp@example.com</string>
+</resources>
