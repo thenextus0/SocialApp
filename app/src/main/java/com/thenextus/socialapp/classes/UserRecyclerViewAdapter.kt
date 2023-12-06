@@ -5,6 +5,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.CircleCropTransformation
+import com.thenextus.socialapp.R
 import com.thenextus.socialapp.databinding.RecyclerviewCardBinding
 import com.thenextus.socialapp.retrofit.model.UserModel
 
@@ -29,9 +32,13 @@ class UserRecyclerViewAdapter(): RecyclerView.Adapter<UserRecyclerViewAdapter.Ca
 
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
 
-        //holder.binding.profilePhoto.setImageURI()
         holder.binding.name.text = "${userList[position].name.first} ${userList[position].name.last}" as String
         holder.binding.email.text = userList[position].email
+        holder.binding.profilePhoto.load(userList[position].picture.thumbnail)  {
+            crossfade(true)
+            placeholder(R.drawable.profile)
+            transformations(CircleCropTransformation())
+        }
 
         holder.binding.friendButton.setOnClickListener {
             Toast.makeText(holder.binding.root.context, "Clicked ${userList[position].name.first} ${userList[position].name.last}", Toast.LENGTH_LONG).show()

@@ -24,13 +24,7 @@ class UsersViewModel(): ViewModel() {
     val userListLiveData: LiveData<List<UserModel>> get() = _userListLiveData
 
     fun getUsers() {
-        if (!_userListLiveData.isInitialized) {
-            sendGetDataRequest()
-        }
-    }
-
-    fun setUsers(userArrayList: List<UserModel>) {
-        //userList = userArrayList
+        if (!_userListLiveData.isInitialized) sendGetDataRequest()
     }
 
     private fun sendGetDataRequest() {
@@ -47,8 +41,8 @@ class UsersViewModel(): ViewModel() {
                 if (response.isSuccessful) {
                     response.body()?.let { userResponseModel ->
                         onSuccessfulResponse(userResponseModel)
-                    }
-                }
+                    } ?: run { Log.d(KeyValues.LogAPI.key, "Response body is empty") }
+                } else (Log.d(KeyValues.LogAPI.key, "Response failed."))
             }
 
             override fun onFailure(call: Call<UserResponseModel>, t: Throwable) { t.printStackTrace() }

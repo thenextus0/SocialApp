@@ -9,4 +9,8 @@
 
     <string name="recyclerview_emailLabel">E-mail:</string>
     <string name="recyclerview_email">socialapp@example.com</string>
+    <string name="LoginText">Login Test Text</string>
+    <string name="LoginEmailHint">E-mail adresinizi giriniz..</string>
+    <string name="LoginPasswordHint">Şifrenizi Giriniz..</string>
+    <string name="LoginButton">Giriş Yap</string>
 </resources>
