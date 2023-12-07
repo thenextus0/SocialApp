@@ -1,4 +1,4 @@
-package com.thenextus.socialapp.pages
+package com.thenextus.socialapp.fragments
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.thenextus.socialapp.classes.adapters.ProfileRecyclerViewAdapter
 import com.thenextus.socialapp.databinding.FragmentProfileBinding
-import com.thenextus.socialapp.databinding.ProfileRecyclerviewCardBinding
 
 class ProfileFragment : Fragment() {
 
@@ -29,9 +28,14 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+        binding.usernameText.text = "-"
+        binding.emailText.text = "TestEmail"
+
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         adapter = ProfileRecyclerViewAdapter()
         binding.recyclerView.adapter = adapter
+
 
 
     }

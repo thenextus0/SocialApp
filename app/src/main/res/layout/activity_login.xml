@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".pages.LoginFragment">
+    tools:context=".LoginActivity">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/appLogo"
@@ -91,7 +91,6 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/loginButton"
         style="@style/Widget.Material3.Button.ElevatedButton"
-        android:fontFamily="@font/fjallaone"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="24dp"
@@ -100,6 +99,8 @@
         android:autoSizeMaxTextSize="25sp"
         android:autoSizeMinTextSize="18sp"
         android:autoSizeTextType="uniform"
+        android:fontFamily="@font/fjallaone"
+        android:onClick="login"
         android:text="@string/LoginButton"
         android:textAppearance="?attr/textAppearanceButton"
         android:textColor="@color/buttonTextColor"

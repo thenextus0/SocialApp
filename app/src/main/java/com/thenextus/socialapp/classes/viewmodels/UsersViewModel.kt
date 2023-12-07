@@ -1,15 +1,13 @@
-package com.thenextus.socialapp.classes.viewmodel
+package com.thenextus.socialapp.classes.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.thenextus.socialapp.classes.KeyValues
 import com.thenextus.socialapp.retrofit.model.UserModel
 import com.thenextus.socialapp.retrofit.model.UserResponseModel
 import com.thenextus.socialapp.retrofit.service.RandomUserAPI
-import kotlinx.coroutines.flow.MutableStateFlow
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -23,9 +21,7 @@ class UsersViewModel(): ViewModel() {
     private val _userListLiveData = MutableLiveData<List<UserModel>>()
     val userListLiveData: LiveData<List<UserModel>> get() = _userListLiveData
 
-    fun getUsers() {
-        if (!_userListLiveData.isInitialized) sendGetDataRequest()
-    }
+    fun getUsers() { if (!_userListLiveData.isInitialized) sendGetDataRequest() }
 
     private fun sendGetDataRequest() {
         var retrofit = Retrofit.Builder()
@@ -50,7 +46,5 @@ class UsersViewModel(): ViewModel() {
 
     }
 
-    private fun onSuccessfulResponse(response: UserResponseModel) {
-        _userListLiveData.value = response.results
-    }
+    private fun onSuccessfulResponse(response: UserResponseModel) { _userListLiveData.value = response.results }
 }

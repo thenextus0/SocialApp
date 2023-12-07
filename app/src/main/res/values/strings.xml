@@ -17,4 +17,5 @@
 
     <string name="ProfileDummyName">Oliver Dummy</string>
     <string name="ProfileDummyEmail">oliverdummy@example.com</string>
+    <string name="MainMenuAddFriendContent">Arkadaş Ekle</string>
 </resources>

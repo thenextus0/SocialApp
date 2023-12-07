@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".pages.ProfileFragment">
+    tools:context=".fragments.ProfileFragment">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/profileCardView"
         android:layout_width="0dp"
-        android:layout_height="167dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
@@ -84,16 +84,34 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/friendsCardView"
+        app:cardBackgroundColor="@color/white"
+        app:strokeColor="#807878"
+        app:strokeWidth="2sp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="5dp"
+        app:cardMaxElevation="0sp"
+        app:cardPreventCornerOverlap="true"
+        app:cardUseCompatPadding="true"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profileCardView" />
+        app:layout_constraintTop_toBottomOf="@+id/profileCardView" >
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </com.google.android.material.card.MaterialCardView>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

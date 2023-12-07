@@ -1,4 +1,4 @@
-package com.thenextus.socialapp.pages
+package com.thenextus.socialapp.fragments
 
 import android.os.Bundle
 import android.util.Log
@@ -9,8 +9,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.thenextus.socialapp.classes.adapters.UserRecyclerViewAdapter
-import com.thenextus.socialapp.classes.viewmodel.UsersViewModel
+import com.thenextus.socialapp.classes.adapters.MainMenuRecyclerViewAdapter
+import com.thenextus.socialapp.classes.viewmodels.UsersViewModel
 import com.thenextus.socialapp.databinding.FragmentMainMenuBinding
 
 class MainMenuFragment : Fragment() {
@@ -20,7 +20,7 @@ class MainMenuFragment : Fragment() {
 
     private val userViewModel: UsersViewModel by viewModels()
 
-    private lateinit var adapter: UserRecyclerViewAdapter
+    private lateinit var adapter: MainMenuRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +37,7 @@ class MainMenuFragment : Fragment() {
         userViewModel.getUsers()
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        adapter = UserRecyclerViewAdapter()
+        adapter = MainMenuRecyclerViewAdapter()
         binding.recyclerView.adapter = adapter
 
         userViewModel.userListLiveData.observe(viewLifecycleOwner, Observer { userList ->

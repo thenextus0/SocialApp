@@ -10,7 +10,7 @@ import com.thenextus.socialapp.R
 import com.thenextus.socialapp.databinding.MainmenuRecyclerviewCardBinding
 import com.thenextus.socialapp.retrofit.model.UserModel
 
-class UserRecyclerViewAdapter(): RecyclerView.Adapter<UserRecyclerViewAdapter.CardViewHolder>() {
+class MainMenuRecyclerViewAdapter(): RecyclerView.Adapter<MainMenuRecyclerViewAdapter.CardViewHolder>() {
 
     private val userList = mutableListOf<UserModel>()
 
