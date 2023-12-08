@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.thenextus.socialapp.MainActivity
 import com.thenextus.socialapp.classes.adapters.MainMenuRecyclerViewAdapter
 import com.thenextus.socialapp.classes.viewmodels.UsersViewModel
 import com.thenextus.socialapp.databinding.FragmentMainMenuBinding
@@ -24,6 +25,7 @@ class MainMenuFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("FragmentTest", "Main Menu created")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -45,6 +47,9 @@ class MainMenuFragment : Fragment() {
             adapter.notifyDataSetChanged()
         })
 
+
+        (activity as MainActivity).toggleButtonVisibility(false)
+        //(activity as MainActivity).toogleBottomNavigationVisibility(true)
     }
 
     override fun onDestroy() {

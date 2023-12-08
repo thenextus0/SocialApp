@@ -1,11 +1,15 @@
 package com.thenextus.socialapp.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
+
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.thenextus.socialapp.MainActivity
 import com.thenextus.socialapp.classes.adapters.ProfileRecyclerViewAdapter
 import com.thenextus.socialapp.databinding.FragmentProfileBinding
 
@@ -18,6 +22,7 @@ class ProfileFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("FragmentTest", "Profil created")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -28,15 +33,12 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-        binding.usernameText.text = "-"
-        binding.emailText.text = "TestEmail"
-
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         adapter = ProfileRecyclerViewAdapter()
         binding.recyclerView.adapter = adapter
 
-
+        (activity as MainActivity).toggleButtonVisibility(true)
+        //(activity as MainActivity).toogleBottomNavigationVisibility(true)
 
     }
 
