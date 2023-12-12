@@ -100,7 +100,6 @@
         android:autoSizeMinTextSize="18sp"
         android:autoSizeTextType="uniform"
         android:fontFamily="@font/fjallaone"
-        android:onClick="login"
         android:text="@string/LoginButton"
         android:textAppearance="?attr/textAppearanceButton"
         android:textColor="@color/buttonTextColor"

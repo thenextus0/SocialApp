@@ -4,21 +4,24 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.thenextus.socialapp.classes.database.entities.ApiUser
+import com.thenextus.socialapp.classes.database.entities.Friend
+import com.thenextus.socialapp.classes.database.entities.User
 
-@Database(entities = [User::class], version = 1)
-abstract class SocialAppDatabase: RoomDatabase() {
+@Database(entities = [User::class, Friend::class, ApiUser::class], version = 1)
+abstract class AppDatabase: RoomDatabase() {
 
-    abstract fun socialAppDao(): SocialAppDao
+    abstract fun appDao(): AppDao
 
     companion object {
         @Volatile
-        private var instanceF: SocialAppDatabase? = null
+        private var instanceF: AppDatabase? = null
 
-        fun getInstance(context: Context): SocialAppDatabase {
+        fun getInstance(context: Context): AppDatabase {
             return instanceF ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    SocialAppDatabase::class.java,
+                    AppDatabase::class.java,
                     "SocialAppDatabase"
                 ).build()
                 instanceF = instance
@@ -27,4 +30,5 @@ abstract class SocialAppDatabase: RoomDatabase() {
         }
 
     }
+
 }

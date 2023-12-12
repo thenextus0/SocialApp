@@ -5,8 +5,6 @@ enum class KeyValues(val key: String) {
     LogData("LogDataTest"),
 
     SPUserFile("com.thenextus.socialapp"),
-    SPUserEmail("SPUserEmail"),
-    SPUserFirstName("SPUserFirstName"),
-    SPUserLastName("SPUserLastName"),
-    SPUserPicture("SPUserPicture")
+    SPUserLogged("SPUserLogged"),
+    SPUserLoggedID("SPUserLoggedID")
 }

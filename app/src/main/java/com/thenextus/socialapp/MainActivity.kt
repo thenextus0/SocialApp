@@ -1,20 +1,19 @@
 package com.thenextus.socialapp
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.thenextus.socialapp.classes.KeyValues
 import com.thenextus.socialapp.databinding.ActivityMainBinding
 import com.thenextus.socialapp.fragments.MainMenuFragmentDirections
 import com.thenextus.socialapp.fragments.ProfileFragmentDirections
-import com.thenextus.socialapp.fragments.SettingsFragmentDirections
 
 
 class MainActivity : AppCompatActivity() {
@@ -23,23 +22,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val onNavigationItemSelectedListener =
-        BottomNavigationView.OnNavigationItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.profileFragment -> {
-                    val action = MainMenuFragmentDirections.actionMainMenuFragmentToProfileFragment()
-                    navController.navigate(action)
-                    return@OnNavigationItemSelectedListener true
-                }
-                R.id.mainMenuFragment -> {
-                    val action = ProfileFragmentDirections.actionProfileFragmentToMainMenuFragment()
-                    navController.navigate(action)
-                    return@OnNavigationItemSelectedListener true
-                }
-            }
-            false
-        }
-
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,12 +31,13 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigation.setupWithNavController(navController)
 
-        //binding.bottomNavigation.selectedItemId = R.id.mainMenuFragment
-        //binding.bottomNavigation.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
 
-    }
+        /*sharedPreferences = this.getSharedPreferences(KeyValues.SPUserFile.key, Context.MODE_PRIVATE)
+        val isLogged: Boolean = sharedPreferences.getBoolean(KeyValues.SPUserLogged.key, false)
+        val id: String? = sharedPreferences.getString(KeyValues.SPUserLoggedID.key, null)
 
-    fun loadFragment() {
+        println(id)
+        println(isLogged)*/
 
     }
 

@@ -14,12 +14,14 @@ class MainMenuRecyclerViewAdapter(): RecyclerView.Adapter<MainMenuRecyclerViewAd
 
     private val userList = mutableListOf<UserModel>()
 
-    fun setUserData(users: List<UserModel>) {
-        userList.addAll(users)
-    }
+    private var onAddClickListener: OnAddClickListener? = null
 
-    class CardViewHolder(val binding: MainmenuRecyclerviewCardBinding): RecyclerView.ViewHolder(binding.root) {
+    fun setUserData(users: List<UserModel>) { userList.addAll(users) }
 
+    inner class CardViewHolder(val binding: MainmenuRecyclerviewCardBinding): RecyclerView.ViewHolder(binding.root) {
+        init {
+            binding.friendButton.setOnClickListener { onAddClickListener?.onAddClick(adapterPosition) }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewHolder {
@@ -27,11 +29,11 @@ class MainMenuRecyclerViewAdapter(): RecyclerView.Adapter<MainMenuRecyclerViewAd
         return CardViewHolder(binding)
     }
 
-    override fun getItemCount(): Int {
-        return userList.size
-    }
+    override fun getItemCount(): Int { return userList.size }
 
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
+
+        holder.binding.friendButton.setOnClickListener { onAddClickListener?.onAddClick(position) }
 
         holder.binding.name.text = "${userList[position].name.first} ${userList[position].name.last}" as String
         holder.binding.email.text = userList[position].email
@@ -41,9 +43,18 @@ class MainMenuRecyclerViewAdapter(): RecyclerView.Adapter<MainMenuRecyclerViewAd
             transformations(CircleCropTransformation())
         }
 
-        holder.binding.friendButton.setOnClickListener {
+        /*holder.binding.friendButton.setOnClickListener {
             Toast.makeText(holder.binding.root.context, "Clicked ${userList[position].name.first} ${userList[position].name.last}", Toast.LENGTH_LONG).show()
-        }
+        }*/
 
     }
+
+    interface OnAddClickListener {
+        fun onAddClick(position: Int)
+    }
+
+    fun setOnAddClickListener(listener: OnAddClickListener) {
+        this.onAddClickListener = listener
+    }
+
 }
