@@ -1,6 +1,7 @@
 package com.thenextus.socialapp.classes.viewmodels
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thenextus.socialapp.classes.database.entities.ApiUser
@@ -12,6 +13,10 @@ class ApiUserViewModel(private val repository: AppDatabaseRepository): ViewModel
 
     var _allApiUsers: LiveData<List<ApiUser>>? = repository.getAllApiUsers()
     val allApiUsers: LiveData<List<ApiUser>>? get() = _allApiUsers
+
+    var _allApiUsersForID = MutableLiveData<ArrayList<ApiUser>>(ArrayList<ApiUser>())
+
+    val allApiUsersForID: LiveData<ArrayList<ApiUser>> get() = _allApiUsersForID
 
 
     fun getApiUserForID(id: String): ApiUser? { return repository.getSpesificApiUser(id) }

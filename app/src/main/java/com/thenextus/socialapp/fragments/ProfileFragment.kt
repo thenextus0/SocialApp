@@ -16,8 +16,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.thenextus.socialapp.LoginActivity
 import com.thenextus.socialapp.MainActivity
+import com.thenextus.socialapp.R
 import com.thenextus.socialapp.classes.KeyValues
 import com.thenextus.socialapp.classes.adapters.ProfileRecyclerViewAdapter
 import com.thenextus.socialapp.classes.database.entities.ApiUser
@@ -47,8 +50,6 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
 
     private lateinit var friendsViewModel: FriendsViewModel
     private lateinit var apiUserViewModel: ApiUserViewModel
-
-    //private lateinit var friends = listOf<>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,15 +90,11 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
         binding.recyclerView.adapter = adapter
 
         CoroutineScope(Dispatchers.IO).launch {
-            var friends = friendsViewModel.getAllFriendsByID(notNullUserID)
-            var size: Int
+            friendsViewModel.getAllFriendsByID(notNullUserID)
 
             var apiFriendData: ArrayList<ApiUser> = arrayListOf()
 
-            if (friends != null) size = friends.size
-            else size = 0
-
-            for (i in 0 until size) { apiFriendData.add(apiUserViewModel.getApiUserForID(friends!![i].apiUserID)!!) }
+            for (i in 0 until friendsViewModel.allFriends.value!!.size) { apiFriendData.add(apiUserViewModel.getApiUserForID(friendsViewModel.allFriends.value!![i].apiUserID)!!) }
 
             println(apiFriendData)
             val list = apiFriendData as List<ApiUser>
@@ -111,11 +108,15 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
 
             if (dbData.firstName != null) binding.usernameText.text = dbData.firstName
             else binding.usernameText.text = "-"
-            //binding.usernameText.text =  dbData.firstName ?: "-"
 
-            //imageLoad
+            if (dbData.picture != null) {
+                binding.profilePhoto.load(dbData.picture) {
+                    crossfade(true)
+                    placeholder(R.drawable.profile)
+                    transformations(CircleCropTransformation())
+                }
+            }
         })
-
 
         (activity as MainActivity).toggleButtonVisibility(true)
         (activity as MainActivity).toogleBottomNavigationVisibility(true)

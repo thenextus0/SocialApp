@@ -12,7 +12,9 @@ import kotlinx.coroutines.launch
 
 class FriendsViewModel(val repository: AppDatabaseRepository): ViewModel() {
 
-    val allFriends = MutableLiveData<List<Friend>>()
+    var _allFriends = MutableLiveData<ArrayList<Friend>>(ArrayList<Friend>())
+
+    val allFriends: LiveData<ArrayList<Friend>> get() =  _allFriends
 
     fun getAll(): List<Friend> {
         return repository.getAll()
@@ -30,8 +32,8 @@ class FriendsViewModel(val repository: AppDatabaseRepository): ViewModel() {
         return repository.getSpecificFriends(userID, apiUserID)
     }
 
-    fun getAllFriendsByID(userID: String): List<Friend>? {
-        return repository.getAllFriendsByID(userID)
+    fun getAllFriendsByID(userID: String) {
+        _allFriends.value!!.addAll(repository.getAllFriendsByID(userID)!!)
     }
 
 
