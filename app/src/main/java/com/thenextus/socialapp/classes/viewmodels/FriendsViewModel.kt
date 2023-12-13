@@ -14,18 +14,20 @@ class FriendsViewModel(val repository: AppDatabaseRepository): ViewModel() {
 
     var _allFriends = MutableLiveData<ArrayList<Friend>>(ArrayList<Friend>())
 
-    val allFriends: LiveData<ArrayList<Friend>> get() =  _allFriends
+    val allFriends: LiveData<ArrayList<Friend>> get() = _allFriends
 
     fun getAll(): List<Friend> {
         return repository.getAll()
     }
 
     fun insertDefault(friend: Friend) : Long {
+        _allFriends.value!!.add(friend)
         return repository.insertDefault(friend)
     }
 
-    fun deleteFriend(friendRowID: String) = viewModelScope.launch {
-        repository.deleteUser(friendRowID)
+    fun deleteFriend(friendRowID: String, position: Int) = viewModelScope.launch {
+        _allFriends.value!!.removeAt(position)
+        repository.deleteFriend(friendRowID)
     }
 
     fun getSpecificFriends(userID: String, apiUserID: String): Friend? {

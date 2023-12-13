@@ -16,12 +16,12 @@ import com.thenextus.socialapp.retrofit.model.UserModel
 
 class ProfileRecyclerViewAdapter(): RecyclerView.Adapter<ProfileRecyclerViewAdapter.CardViewHolder>() {
 
-    private val apiUsers = mutableListOf<ApiUser>()
+    private val apiUsers = ArrayList<ApiUser>()
 
     private var onRemoveClickListener: ProfileRecyclerViewAdapter.OnRemoveClickListener? = null
 
-    fun setFriendData(friends: List<ApiUser>) {
-        apiUsers.addAll(friends)
+    fun setFriendData(friends: LiveData<ArrayList<ApiUser>>) {
+        apiUsers.addAll(friends.value!!)
     }
 
     inner class CardViewHolder(val binding: ProfileRecyclerviewCardBinding): RecyclerView.ViewHolder(binding.root) {

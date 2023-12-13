@@ -90,16 +90,15 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
         binding.recyclerView.adapter = adapter
 
         CoroutineScope(Dispatchers.IO).launch {
-            friendsViewModel.getAllFriendsByID(notNullUserID)
 
-            var apiFriendData: ArrayList<ApiUser> = arrayListOf()
+            if(!(friendsViewModel._allFriends.value!!.size > 0))
+                friendsViewModel.getAllFriendsByID(notNullUserID)
+            //println(friendsViewModel.allFriends.value)
+            if (!(apiUserViewModel._allApiUsersForID.value!!.size > 0))
+                for (i in 0 until friendsViewModel.allFriends.value!!.size) { apiUserViewModel.getApiUserForIDArray(friendsViewModel.allFriends.value!![i].apiUserID) }
+            //println(apiUserViewModel.allApiUsersForID.value)
 
-            for (i in 0 until friendsViewModel.allFriends.value!!.size) { apiFriendData.add(apiUserViewModel.getApiUserForID(friendsViewModel.allFriends.value!![i].apiUserID)!!) }
-
-            println(apiFriendData)
-            val list = apiFriendData as List<ApiUser>
-
-            adapter.setFriendData(list)
+            adapter.setFriendData(apiUserViewModel.allApiUsersForID)
             adapter.notifyDataSetChanged()
         }
 
@@ -123,7 +122,12 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
     }
 
     override fun onRemoveClick(position: Int) {
-        Toast.makeText(requireContext(), "Deneme", Toast.LENGTH_LONG).show()
+        val deleteRowID = friendsViewModel.allFriends.value!![position].friendRowID
+        friendsViewModel.deleteFriend(deleteRowID, position)
+        Toast.makeText(requireContext(), "${apiUserViewModel.allApiUsersForID.value!![position].firstName} ${apiUserViewModel.allApiUsersForID.value!![position].lastName} adlı kişi arkadaşlıktan çıkarılşdı.", Toast.LENGTH_LONG).show()
+        //println("ehe" + apiUserViewModel.allApiUsersForID.value!![position].firstName)
+        //adapter.notifyItemRemoved(position)
+        adapter.notifyDataSetChanged()
     }
 
     override fun onDestroy() {

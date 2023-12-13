@@ -21,7 +21,12 @@ class ApiUserViewModel(private val repository: AppDatabaseRepository): ViewModel
 
     fun getApiUserForID(id: String): ApiUser? { return repository.getSpesificApiUser(id) }
 
+    fun getApiUserForIDArray(id: String) {
+        _allApiUsersForID.value!!.add(repository.getSpesificApiUser(id)!!)
+    }
+
     fun insertApiUser(user: ApiUser) = viewModelScope.launch {
+        _allApiUsersForID.value!!.add(user)
         repository.insertApiUser(user)
     }
 

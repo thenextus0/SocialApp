@@ -81,7 +81,7 @@ class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListe
 
     override fun onAddClick(position: Int) {
         //add to database
-         var acces = apiRequestUserViewModel.userListLiveData.value!![position]
+        var acces = apiRequestUserViewModel.userListLiveData.value!![position]
 
         var apiUser: ApiUser = ApiUser(acces.login.uuid, acces.name.first, acces.name.last, acces.email, acces.picture.medium)
         var friend: Friend = Friend(UUID.randomUUID().toString(), currentUserID!!, apiUser.userID)

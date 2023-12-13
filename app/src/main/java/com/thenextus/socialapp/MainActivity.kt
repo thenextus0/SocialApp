@@ -7,10 +7,16 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.thenextus.socialapp.classes.KeyValues
+import com.thenextus.socialapp.classes.socialapp.ServiceLocator
+import com.thenextus.socialapp.classes.viewmodels.ApiUserViewModel
+import com.thenextus.socialapp.classes.viewmodels.FriendsViewModel
+import com.thenextus.socialapp.classes.viewmodels.factory.ApiUserViewModelFactory
+import com.thenextus.socialapp.classes.viewmodels.factory.FriendsViewModelFactory
 import com.thenextus.socialapp.databinding.ActivityMainBinding
 import com.thenextus.socialapp.fragments.MainMenuFragmentDirections
 import com.thenextus.socialapp.fragments.ProfileFragmentDirections
