@@ -2,23 +2,32 @@ package com.thenextus.socialapp.classes.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.CircleCropTransformation
+import com.thenextus.socialapp.R
+import com.thenextus.socialapp.classes.database.entities.ApiUser
+import com.thenextus.socialapp.classes.database.entities.Friend
 import com.thenextus.socialapp.databinding.ProfileRecyclerviewCardBinding
 import com.thenextus.socialapp.retrofit.model.UserModel
 
 class ProfileRecyclerViewAdapter(): RecyclerView.Adapter<ProfileRecyclerViewAdapter.CardViewHolder>() {
 
-    private val friendList = mutableListOf<String>("Deneme1dsglbjsdklhnsdlkhbmdsbh","Deneme2sdlngslşdhnsdşlhsdh","Deneme3","Deneme4","Deneme5","Deneme6","Deneme7","Deneme8","Deneme9","Deneme10")
+    private val apiUsers = mutableListOf<ApiUser>()
 
-    fun setFriendData(friends: List<String>) {
+    private var onRemoveClickListener: ProfileRecyclerViewAdapter.OnRemoveClickListener? = null
 
-
-
-        friendList.addAll(friends)
+    fun setFriendData(friends: List<ApiUser>) {
+        apiUsers.addAll(friends)
     }
 
-    class CardViewHolder(val binding: ProfileRecyclerviewCardBinding): RecyclerView.ViewHolder(binding.root) {
-
+    inner class CardViewHolder(val binding: ProfileRecyclerviewCardBinding): RecyclerView.ViewHolder(binding.root) {
+        init {
+            binding.friendButton.setOnClickListener { onRemoveClickListener?.onRemoveClick(adapterPosition) }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewHolder {
@@ -27,12 +36,28 @@ class ProfileRecyclerViewAdapter(): RecyclerView.Adapter<ProfileRecyclerViewAdap
     }
 
     override fun getItemCount(): Int {
-        return friendList.size
+        return apiUsers.size
     }
 
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
-        holder.binding.name.text = friendList[position]
 
+        holder.binding.friendButton.setOnClickListener { onRemoveClickListener?.onRemoveClick(position) }
 
+        holder.binding.name.text = "${apiUsers[position].firstName} ${apiUsers[position].lastName}"
+
+        holder.binding.profilePhoto.load(apiUsers[position].picture!!) {
+            crossfade(true)
+            placeholder(R.drawable.profile)
+            transformations(CircleCropTransformation())
+        }
+
+    }
+
+    interface OnRemoveClickListener {
+        fun onRemoveClick(position: Int)
+    }
+
+    fun setOnRemoveClickListener(listener: ProfileRecyclerViewAdapter.OnRemoveClickListener) {
+        this.onRemoveClickListener = listener
     }
 }

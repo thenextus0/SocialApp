@@ -7,7 +7,7 @@ import com.thenextus.socialapp.classes.database.entities.ApiUser
 import com.thenextus.socialapp.classes.database.entities.Friend
 import com.thenextus.socialapp.classes.database.entities.User
 
-class AppDatabaseRepository(private val appDao: AppDao) {
+class AppDatabaseRepository(val appDao: AppDao) {
 
     //Users
 
@@ -50,26 +50,25 @@ class AppDatabaseRepository(private val appDao: AppDao) {
 
     //Friends
 
-    fun getAllFriends(): LiveData<List<Friend>>? {
-        return appDao.getAllFriends()
+    fun getAll(): List<Friend> {
+        return appDao.getAll()
     }
 
-    suspend fun insertFriend(friend: Friend){
-        var test = appDao.insertFriend(friend.friendID, friend.userID, friend.userFriendID)
-        Log.d("Fatal", test.toString())
-    }
-
-    fun getAllFriendsByUserID(userID: String): LiveData<List<Friend>>? {
-        return appDao.getAllFriendsByUserID(userID)
+    fun insertDefault(friend: Friend): Long {
+        return appDao.insertDefault(friend)
     }
 
     suspend fun deleteFriend(friendRowID: String) {
         appDao.deleteFriendShip(friendRowID)
     }
 
-    /*fun getSpesificFriendByID(friendID: String): LiveData<Friends> {
-        return appDao.getSpesificFriendByID(friendID)
-    }*/
+    fun getSpecificFriends(userID: String, apiUserID: String): Friend? {
+        return appDao.getSpecificFriends(userID, apiUserID)
+    }
+
+    fun getAllFriendsByID(userID: String): List<Friend>? {
+        return appDao.getAllFriendsByID(userID)
+    }
 
 
 }

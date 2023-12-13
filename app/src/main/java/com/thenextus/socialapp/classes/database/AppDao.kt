@@ -45,19 +45,25 @@ interface AppDao {
     //Friends
 
     @Query("SELECT * FROM Friends")
-    fun getAllFriends(): LiveData<List<Friend>>?
+    fun getAll(): List<Friend>
 
-    @Query("INSERT INTO Friends (friendRowID, friendUserID, apiUserID) VALUES (:friendRowID, :userID, :apiUserID)")
-    suspend fun insertFriend(friendRowID: String, userID: String, apiUserID: String): Long
+    @Insert
+    fun insertDefault(data: Friend): Long
 
-    @Query("SELECT * FROM Friends WHERE friendUserID=:userID")
-    fun getAllFriendsByUserID(userID: String): LiveData<List<Friend>>?
+    @Query("SELECT * FROM Friends")
+    fun getAllFriends(): LiveData<List<Friend>>
+
+    @Query("INSERT INTO Friends (friendRowID, friendUserID, apiUserID) VALUES (:friendRowID, :friendUserID, :apiUserID)")
+    suspend fun insertFriend(friendRowID: String, friendUserID: String, apiUserID: String): Long
 
     @Query("DELETE FROM Friends WHERE friendRowID=:friendRowID")
     suspend fun deleteFriendShip(friendRowID: String)
 
-    /*@Query("SELECT * FROM Friends WHERE userFriendID=:friendID")
-    fun getSpesificFriendByID(friendID: String): LiveData<Friends>*/
+    @Query("SELECT * FROM Friends WHERE friendUserID=:userID AND apiUserID=:apiUserID")
+    fun getSpecificFriends(userID: String, apiUserID: String): Friend?
+
+    @Query("SELECT * FROM Friends WHERE friendUserID=:userID")
+    fun getAllFriendsByID(userID: String): List<Friend>?
 
 
 }

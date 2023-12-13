@@ -63,6 +63,21 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/profilePhoto" />
 
+            <ImageButton
+                android:id="@+id/friendButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@color/white"
+                android:contentDescription="@string/ProfileRemoveFriendContent"
+                android:scaleType="center"
+                android:src="@drawable/cancel_circle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHeight_percent="0.5"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.14" />
+
+
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

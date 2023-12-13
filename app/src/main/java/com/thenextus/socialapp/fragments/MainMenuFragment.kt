@@ -1,19 +1,17 @@
 package com.thenextus.socialapp.fragments
 
+import android.R.attr.duration
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.thenextus.socialapp.MainActivity
 import com.thenextus.socialapp.classes.KeyValues
@@ -32,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
 
+
 class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListener {
 
     private var _binding: FragmentMainMenuBinding? = null
@@ -43,8 +42,6 @@ class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListe
 
     private lateinit var sharedPreferences: SharedPreferences
     private var currentUserID: String? = null
-
-    private lateinit var friends: LiveData<List<Friend>>
 
     private lateinit var adapter: MainMenuRecyclerViewAdapter
 
@@ -84,30 +81,23 @@ class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListe
 
     override fun onAddClick(position: Int) {
         //add to database
-        var apiUser: ApiUser
-
          var acces = apiRequestUserViewModel.userListLiveData.value!![position]
 
-        apiUser = ApiUser(acces.login.uuid, acces.name.first, acces.name.last, acces.email, acces.picture.thumbnail)
+        var apiUser: ApiUser = ApiUser(acces.login.uuid, acces.name.first, acces.name.last, acces.email, acces.picture.medium)
+        var friend: Friend = Friend(UUID.randomUUID().toString(), currentUserID!!, apiUser.userID)
 
         CoroutineScope(Dispatchers.IO).launch {
             var specificUser = apiUserViewModel.getApiUserForID(apiUser.userID)
             if (specificUser == null) apiUserViewModel.insertApiUser(apiUser)
 
-            var friend: Friend = Friend(UUID.randomUUID().toString(), currentUserID!!, apiUser.userID)
-            friendsViewModel.insertFriend(friend)
-            friends = friendsViewModel.allFriends!!
-            println(friends.value)
-
-
+            var specificFriend = friendsViewModel.getSpecificFriends(currentUserID!!, apiUser.userID)
+            if (specificFriend == null) friendsViewModel.insertDefault(friend)
+            else {
+                requireActivity().runOnUiThread { Toast.makeText(requireContext().applicationContext, "Bu kişi zaten arkadaşınız!", Toast.LENGTH_SHORT).show() }
+            }
         }
-
-        //Toast.makeText(requireContext(), position.toString(), Toast.LENGTH_LONG).show()
     }
 
-    private fun addToFriends() {
-
-    }
 
 
     override fun onDestroy() {

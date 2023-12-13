@@ -43,10 +43,6 @@ class MainMenuRecyclerViewAdapter(): RecyclerView.Adapter<MainMenuRecyclerViewAd
             transformations(CircleCropTransformation())
         }
 
-        /*holder.binding.friendButton.setOnClickListener {
-            Toast.makeText(holder.binding.root.context, "Clicked ${userList[position].name.first} ${userList[position].name.last}", Toast.LENGTH_LONG).show()
-        }*/
-
     }
 
     interface OnAddClickListener {

@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "Friends")
 data class Friend(
-    @PrimaryKey @ColumnInfo(name= "friendRowID") var friendID: String,
-    @ColumnInfo(name= "friendUserID") var userID: String,
-    @ColumnInfo(name= "apiUserID") var userFriendID: String
-)
+    @PrimaryKey @ColumnInfo(name= "friendRowID") var friendRowID: String,
+    @ColumnInfo(name= "friendUserID") var friendUserID: String,
+    @ColumnInfo(name= "apiUserID") var apiUserID: String
+    )
