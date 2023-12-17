@@ -48,9 +48,7 @@
             android:autoSizeTextType="uniform"
 
             android:hint="@string/LoginEmailHint"
-            android:inputType="textEmailAddress">
-
-        </com.google.android.material.textfield.TextInputEditText>
+            android:inputType="textEmailAddress"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 

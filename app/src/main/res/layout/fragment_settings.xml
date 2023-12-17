@@ -1,14 +1,188 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.SettingsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Ayarlar Fragment" />
 
-</FrameLayout>
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/pictureCardView"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/profilePhoto"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginBottom="16dp"
+                android:contentDescription="Profil fotoğrafını değiştirmek için tıkla!"
+                android:src="@drawable/profile"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/currentPictureLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="Profil fotoğrafı değiştirmek için tıkla!"
+                app:layout_constraintBottom_toTopOf="@+id/profilePhoto"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/otherFieldsCardView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pictureCardView">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/fieldTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="Aşağıdaki alanları doldurunuz."
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/firstNameEditTextLayout"
+                android:layout_width="160dp"
+                android:layout_height="69dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:padding="10dp"
+                android:text="@string/SettingsFirstNameLabelText"
+                android:textSize="20sp"
+                app:boxStrokeColor="@color/black"
+                app:boxStrokeWidth="2dp"
+                app:boxStrokeWidthFocused="2dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/fieldTitle"
+                app:startIconDrawable="@drawable/account">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/firstNameEditText"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:autoSizeTextType="uniform"
+
+                    android:hint="@string/SettingsFirstNameHintText"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/lastNameEditTextLayout"
+                android:layout_width="160dp"
+                android:layout_height="69dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:padding="10dp"
+                android:text="@string/SettingsLastNameLabelText"
+                android:textSize="20sp"
+                app:boxStrokeColor="@color/black"
+                app:boxStrokeWidth="2dp"
+                app:boxStrokeWidthFocused="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/firstNameEditTextLayout"
+                app:layout_constraintTop_toBottomOf="@+id/fieldTitle"
+                app:startIconDrawable="@drawable/account">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/lastNameEditText"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:autoSizeTextType="uniform"
+
+                    android:hint="@string/SettingsLastNameHintText"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/emailEditTextLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="69dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:padding="10dp"
+                android:text="@string/SettingsEmailLabelText"
+                android:textSize="20sp"
+                app:boxStrokeColor="@color/black"
+                app:boxStrokeWidth="2dp"
+                app:boxStrokeWidthFocused="2dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/firstNameEditTextLayout"
+                app:startIconDrawable="@drawable/account">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/emailEditText"
+                    android:layout_width="250dp"
+                    android:layout_height="wrap_content"
+                    android:autoSizeTextType="uniform"
+
+                    android:hint="@string/SettingsEmailHintText"
+                    android:inputType="textEmailAddress" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/setChangesButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:text="Onayla"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/otherFieldsCardView" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

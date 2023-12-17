@@ -1,9 +1,9 @@
 package com.thenextus.socialapp.fragments
 
-import android.R.attr.duration
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.thenextus.socialapp.MainActivity
 import com.thenextus.socialapp.classes.KeyValues
@@ -41,7 +42,7 @@ class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListe
     private lateinit var friendsViewModel: FriendsViewModel
 
     private lateinit var sharedPreferences: SharedPreferences
-    private var currentUserID: String? = null
+    private var userID: String? = null
 
     private lateinit var adapter: MainMenuRecyclerViewAdapter
 
@@ -58,7 +59,7 @@ class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListe
         super.onViewCreated(view, savedInstanceState)
 
         sharedPreferences = requireActivity().getSharedPreferences(KeyValues.SPUserFile.key, Context.MODE_PRIVATE)
-        currentUserID = sharedPreferences.getString(KeyValues.SPUserLoggedID.key, null)
+        userID = sharedPreferences.getString(KeyValues.SPUserLoggedID.key, null)
 
         apiUserViewModel = ViewModelProvider(requireActivity(), ApiUserViewModelFactory(ServiceLocator.provideRepository())).get(ApiUserViewModel::class.java)
         friendsViewModel = ViewModelProvider(requireActivity(), FriendsViewModelFactory(ServiceLocator.provideRepository())).get(FriendsViewModel::class.java)
@@ -81,21 +82,20 @@ class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListe
 
     override fun onAddClick(position: Int) {
         //add to database
-        var acces = apiRequestUserViewModel.userListLiveData.value!![position]
+        val access = apiRequestUserViewModel.userListLiveData.value!![position]
+        val apiUser = ApiUser(access.login.uuid, access.name.first, access.name.last, access.email, access.picture.medium)
+        val friend = Friend(UUID.randomUUID().toString(), userID!!, apiUser.userID)
 
-        var apiUser: ApiUser = ApiUser(acces.login.uuid, acces.name.first, acces.name.last, acces.email, acces.picture.medium)
-        var friend: Friend = Friend(UUID.randomUUID().toString(), currentUserID!!, apiUser.userID)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            var specificUser = apiUserViewModel.getApiUserForID(apiUser.userID)
-            if (specificUser == null) apiUserViewModel.insertApiUser(apiUser)
+        //tekrar yapılacak
 
-            var specificFriend = friendsViewModel.getSpecificFriends(currentUserID!!, apiUser.userID)
-            if (specificFriend == null) friendsViewModel.insertDefault(friend)
-            else {
-                requireActivity().runOnUiThread { Toast.makeText(requireContext().applicationContext, "Bu kişi zaten arkadaşınız!", Toast.LENGTH_SHORT).show() }
-            }
-        }
+        apiUserViewModel.getSpesificApiUser(apiUser.userID).observe(viewLifecycleOwner, Observer {
+            if (it == null) apiUserViewModel.insertApiUser(apiUser)
+        })
+
+        friendsViewModel.getSpecificFriend(userID!!, apiUser.userID).observe(viewLifecycleOwner, Observer {  specificFriend ->
+            if (specificFriend == null) friendsViewModel.insertFriend(friend)
+        })
     }
 
 

@@ -78,6 +78,9 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     kapt("androidx.room:room-compiler:$room_version")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
     val lifecycle_version = "2.6.2"
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
 

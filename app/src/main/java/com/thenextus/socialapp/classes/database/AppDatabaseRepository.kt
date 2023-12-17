@@ -1,11 +1,12 @@
 package com.thenextus.socialapp.classes.database
 
-import android.icu.util.Freezable
-import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.thenextus.socialapp.classes.database.entities.ApiUser
 import com.thenextus.socialapp.classes.database.entities.Friend
 import com.thenextus.socialapp.classes.database.entities.User
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class AppDatabaseRepository(val appDao: AppDao) {
 
@@ -32,43 +33,39 @@ class AppDatabaseRepository(val appDao: AppDao) {
 
     //ApiUsers
 
-    fun getAllApiUsers(): LiveData<List<ApiUser>>? {
-        return appDao.getAllApiUser()
+    fun getSpecificApiUser(apiUserID: String): LiveData<ApiUser> {
+        return appDao.getSpecificApiUser(apiUserID)
     }
 
-    fun getSpesificApiUser(userID: String): ApiUser? {
-        return appDao.getSpesificApiUser(userID)
+    suspend fun getUsersByIdList(friendIDList: List<String>): List<ApiUser> {
+        return withContext(Dispatchers.IO) {
+            appDao.getUsersByIdList(friendIDList)
+        }
     }
 
-    suspend fun insertApiUser(user: ApiUser) {
-        appDao.insertApiUser(user.userID, user.firstName, user.lastName, user.email, user.picture)
-    }
 
-    suspend fun deleteApiUser(userID: String) {
-        appDao.deleteApiUser(userID)
+    suspend fun insertApiUser(apiUser: ApiUser) {
+        appDao.insertApiUser(apiUser.userID, apiUser.firstName, apiUser.lastName, apiUser.email, apiUser.picture)
     }
 
     //Friends
 
-    fun getAll(): List<Friend> {
-        return appDao.getAll()
+    suspend fun insertFriend(friend: Friend) {
+        appDao.insertFriend(friend.friendRowID, friend.friendUserID, friend.apiUserID)
     }
 
-    fun insertDefault(friend: Friend): Long {
-        return appDao.insertDefault(friend)
+    suspend fun deleteFriendship(friendRowID: String) {
+        withContext(Dispatchers.IO) {
+            appDao.deleteFriendShip(friendRowID)
+        }
     }
 
-    suspend fun deleteFriend(friendRowID: String) {
-        appDao.deleteFriendShip(friendRowID)
+    fun getSpecificFriend(userID: String, apiUserID: String): LiveData<Friend> {
+        return appDao.getSpecificFriend(userID, apiUserID)
     }
 
-    fun getSpecificFriends(userID: String, apiUserID: String): Friend? {
-        return appDao.getSpecificFriends(userID, apiUserID)
-    }
-
-    fun getAllFriendsByID(userID: String): List<Friend>? {
+    fun getAllFriendsByID(userID: String): LiveData<List<Friend>> {
         return appDao.getAllFriendsByID(userID)
     }
-
 
 }

@@ -16,17 +16,15 @@ import com.thenextus.socialapp.retrofit.model.UserModel
 
 class ProfileRecyclerViewAdapter(): RecyclerView.Adapter<ProfileRecyclerViewAdapter.CardViewHolder>() {
 
-    private val apiUsers = ArrayList<ApiUser>()
+    var apiUsers = MutableLiveData<List<ApiUser>>(listOf())
 
     private var onRemoveClickListener: ProfileRecyclerViewAdapter.OnRemoveClickListener? = null
 
-    fun setFriendData(friends: LiveData<ArrayList<ApiUser>>) {
-        apiUsers.addAll(friends.value!!)
-    }
+    fun setData(data: List<ApiUser>) { apiUsers.value = data }
 
     inner class CardViewHolder(val binding: ProfileRecyclerviewCardBinding): RecyclerView.ViewHolder(binding.root) {
         init {
-            binding.friendButton.setOnClickListener { onRemoveClickListener?.onRemoveClick(adapterPosition) }
+            binding.friendButton.setOnClickListener { onRemoveClickListener?.onRemoveClick(adapterPosition, apiUsers.value!![adapterPosition].userID) }
         }
     }
 
@@ -36,16 +34,16 @@ class ProfileRecyclerViewAdapter(): RecyclerView.Adapter<ProfileRecyclerViewAdap
     }
 
     override fun getItemCount(): Int {
-        return apiUsers.size
+        return apiUsers.value!!.size
     }
 
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
 
-        holder.binding.friendButton.setOnClickListener { onRemoveClickListener?.onRemoveClick(position) }
+        holder.binding.friendButton.setOnClickListener { onRemoveClickListener?.onRemoveClick(position, apiUsers.value!![position].userID) }
 
-        holder.binding.name.text = "${apiUsers[position].firstName} ${apiUsers[position].lastName}"
+        holder.binding.name.text = "${apiUsers.value!![position].firstName} ${apiUsers.value!![position].lastName}"
 
-        holder.binding.profilePhoto.load(apiUsers[position].picture!!) {
+        holder.binding.profilePhoto.load(apiUsers.value!![position].picture!!) {
             crossfade(true)
             placeholder(R.drawable.profile)
             transformations(CircleCropTransformation())
@@ -54,7 +52,7 @@ class ProfileRecyclerViewAdapter(): RecyclerView.Adapter<ProfileRecyclerViewAdap
     }
 
     interface OnRemoveClickListener {
-        fun onRemoveClick(position: Int)
+        fun onRemoveClick(position: Int, apiUserID: String)
     }
 
     fun setOnRemoveClickListener(listener: ProfileRecyclerViewAdapter.OnRemoveClickListener) {

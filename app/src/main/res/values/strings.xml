@@ -21,4 +21,10 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="ProfileRemoveFriendContent">Arkadaşlıktan Çıkar</string>
+    <string name="SettingsEmailLabelText">E-mail adresi</string>
+    <string name="SettingsEmailHintText">E-mail Adresi</string>
+    <string name="SettingsFirstNameLabelText">İsim</string>
+    <string name="SettingsFirstNameHintText">İsim</string>
+    <string name="SettingsLastNameLabelText">Soyisim</string>
+    <string name="SettingsLastNameHintText">Soyisim</string>
 </resources>

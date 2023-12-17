@@ -14,6 +14,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
@@ -36,6 +37,7 @@ import com.thenextus.socialapp.databinding.FragmentProfileBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.internal.wait
 
 class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickListener {
 
@@ -46,32 +48,13 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
 
     private lateinit var userViewModel: UserViewModel
     private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var notNullUserID: String
+    private var userID: String? = null
 
     private lateinit var friendsViewModel: FriendsViewModel
     private lateinit var apiUserViewModel: ApiUserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        friendsViewModel = ViewModelProvider(requireActivity(), FriendsViewModelFactory(ServiceLocator.provideRepository())).get(FriendsViewModel::class.java)
-        apiUserViewModel = ViewModelProvider(requireActivity(), ApiUserViewModelFactory(ServiceLocator.provideRepository())).get(ApiUserViewModel::class.java)
-
-        userViewModel = ViewModelProvider(requireActivity(), UserViewModelFactory(ServiceLocator.provideRepository())).get(UserViewModel::class.java)
-        sharedPreferences = requireActivity().getSharedPreferences(KeyValues.SPUserFile.key, Context.MODE_PRIVATE)
-        val userID: String? = sharedPreferences.getString(KeyValues.SPUserLoggedID.key, null)
-
-        if (userID.isNullOrBlank()) {
-            sharedPreferences.edit().putBoolean(KeyValues.SPUserLogged.key, false).apply()
-            sharedPreferences.edit().putString(KeyValues.SPUserLoggedID.key, "").apply()
-
-            val intent = Intent(requireActivity(), LoginActivity::class.java)
-            startActivity(intent)
-            requireActivity().finish()
-        } else {
-            userViewModel.setUserForID(userID)
-            notNullUserID = userID
-        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -82,25 +65,40 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //friends = friendsViewModel.getAllFriendsByID(notNullUserID)!!
+        friendsViewModel = ViewModelProvider(requireActivity(), FriendsViewModelFactory(ServiceLocator.provideRepository())).get(FriendsViewModel::class.java)
+        apiUserViewModel = ViewModelProvider(requireActivity(), ApiUserViewModelFactory(ServiceLocator.provideRepository())).get(ApiUserViewModel::class.java)
+
+        userViewModel = ViewModelProvider(requireActivity(), UserViewModelFactory(ServiceLocator.provideRepository())).get(UserViewModel::class.java)
+        sharedPreferences = requireActivity().getSharedPreferences(KeyValues.SPUserFile.key, Context.MODE_PRIVATE)
+        userID = sharedPreferences.getString(KeyValues.SPUserLoggedID.key, null)
+
+        if (userID.isNullOrBlank()) {
+            sharedPreferences.edit().putBoolean(KeyValues.SPUserLogged.key, false).apply()
+            sharedPreferences.edit().putString(KeyValues.SPUserLoggedID.key, null).apply()
+
+            val intent = Intent(requireActivity(), LoginActivity::class.java)
+            startActivity(intent)
+            requireActivity().finish()
+        } else userViewModel.setUserForID(userID!!)
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         adapter = ProfileRecyclerViewAdapter()
         adapter.setOnRemoveClickListener(this)
         binding.recyclerView.adapter = adapter
 
-        CoroutineScope(Dispatchers.IO).launch {
+        friendsViewModel.getAllFriendsByID(userID!!).observe(viewLifecycleOwner, Observer { friendList ->
+            //println(friendList)
+            if (friendList != null) {
+                apiUserViewModel.loadUsersByIdList(friendList)
+                apiUserViewModel.allApiUsersByID.observe(viewLifecycleOwner, Observer { apiUsers ->
+                    if (apiUsers != null) {
+                        adapter.setData(apiUsers)
+                        adapter.notifyDataSetChanged()
+                    }
 
-            if(!(friendsViewModel._allFriends.value!!.size > 0))
-                friendsViewModel.getAllFriendsByID(notNullUserID)
-            //println(friendsViewModel.allFriends.value)
-            if (!(apiUserViewModel._allApiUsersForID.value!!.size > 0))
-                for (i in 0 until friendsViewModel.allFriends.value!!.size) { apiUserViewModel.getApiUserForIDArray(friendsViewModel.allFriends.value!![i].apiUserID) }
-            //println(apiUserViewModel.allApiUsersForID.value)
-
-            adapter.setFriendData(apiUserViewModel.allApiUsersForID)
-            adapter.notifyDataSetChanged()
-        }
+                })
+            }
+        })
 
         userViewModel.user?.observe(requireActivity(), Observer { dbData ->
             binding.emailText.text = dbData.email
@@ -121,13 +119,10 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
         (activity as MainActivity).toogleBottomNavigationVisibility(true)
     }
 
-    override fun onRemoveClick(position: Int) {
-        val deleteRowID = friendsViewModel.allFriends.value!![position].friendRowID
-        friendsViewModel.deleteFriend(deleteRowID, position)
-        Toast.makeText(requireContext(), "${apiUserViewModel.allApiUsersForID.value!![position].firstName} ${apiUserViewModel.allApiUsersForID.value!![position].lastName} adlı kişi arkadaşlıktan çıkarılşdı.", Toast.LENGTH_LONG).show()
-        //println("ehe" + apiUserViewModel.allApiUsersForID.value!![position].firstName)
-        //adapter.notifyItemRemoved(position)
-        adapter.notifyDataSetChanged()
+    override fun onRemoveClick(position: Int, apiUserID: String) {
+        friendsViewModel.getSpecificFriend(userID!!, apiUserID).observe(viewLifecycleOwner, Observer {  specificFriend ->
+            if (specificFriend != null) friendsViewModel.deleteFriendship(specificFriend.friendRowID)
+        })
     }
 
     override fun onDestroy() {
