@@ -27,8 +27,10 @@ class AppDatabaseRepository(val appDao: AppDao) {
         appDao.insertUser(user.userID, user.firstName, user.lastName, user.email, user.picture)
     }
 
-    suspend fun deleteUser(userID: String) {
-        appDao.deleteUser(userID)
+    suspend fun updateUserInfo(changedUser: User) {
+        withContext(Dispatchers.IO) {
+            appDao.updateUserInfo(changedUser.userID, changedUser.firstName, changedUser.lastName, changedUser.email, changedUser.picture)
+        }
     }
 
     //ApiUsers
@@ -42,7 +44,6 @@ class AppDatabaseRepository(val appDao: AppDao) {
             appDao.getUsersByIdList(friendIDList)
         }
     }
-
 
     suspend fun insertApiUser(apiUser: ApiUser) {
         appDao.insertApiUser(apiUser.userID, apiUser.firstName, apiUser.lastName, apiUser.email, apiUser.picture)
@@ -66,6 +67,18 @@ class AppDatabaseRepository(val appDao: AppDao) {
 
     fun getAllFriendsByID(userID: String): LiveData<List<Friend>> {
         return appDao.getAllFriendsByID(userID)
+    }
+
+    suspend fun checkFriendshipStatus(userID: String, userIDList: List<String>): List<Boolean> {
+        val friendshipList = withContext(Dispatchers.IO) {
+            appDao.getFriendshipStatus(userID, userIDList)
+        }
+
+        return userIDList.map { friendID ->
+            friendshipList.any { friendship ->
+                friendship.apiUserID == friendID
+            }
+        }
     }
 
 }

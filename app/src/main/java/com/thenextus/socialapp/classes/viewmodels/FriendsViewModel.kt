@@ -5,7 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thenextus.socialapp.classes.database.AppDatabaseRepository
+import com.thenextus.socialapp.classes.database.entities.ApiUser
 import com.thenextus.socialapp.classes.database.entities.Friend
+import com.thenextus.socialapp.retrofit.model.UserModel
 import kotlinx.coroutines.launch
 
 class FriendsViewModel(val repository: AppDatabaseRepository): ViewModel() {
@@ -22,6 +24,10 @@ class FriendsViewModel(val repository: AppDatabaseRepository): ViewModel() {
 
     fun getAllFriendsByID(userID: String): LiveData<List<Friend>> {
         return repository.getAllFriendsByID(userID)
+    }
+
+    suspend fun checkFriendship(userID: String, userIDList: List<String>): List<Boolean> {
+        return repository.checkFriendshipStatus(userID, userIDList)
     }
 
 

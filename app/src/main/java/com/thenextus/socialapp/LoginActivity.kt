@@ -3,9 +3,17 @@ package com.thenextus.socialapp
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Base64
+import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.thenextus.socialapp.classes.KeyValues
@@ -14,6 +22,7 @@ import com.thenextus.socialapp.classes.socialapp.ServiceLocator
 import com.thenextus.socialapp.classes.viewmodels.UserViewModel
 import com.thenextus.socialapp.classes.viewmodels.factory.UserViewModelFactory
 import com.thenextus.socialapp.databinding.ActivityLoginBinding
+import java.io.ByteArrayOutputStream
 import java.util.UUID
 
 class LoginActivity : AppCompatActivity() {
@@ -47,7 +56,13 @@ class LoginActivity : AppCompatActivity() {
                         sharedPreferences.edit().putString(KeyValues.SPUserLoggedID.key, dbData.userID).apply()
                     } ?: run {
                         val newID = UUID.randomUUID().toString()
-                        val newUser = User(newID, null, null, email, null)
+
+                        var drawableImage: Drawable = AppCompatResources.getDrawable(this@LoginActivity, R.drawable.profile)!!
+                        val bitmapImage = drawableToBitmap(drawableImage)
+                        val stringImage = bitmapToString(bitmapImage!!)
+                        //Log.d("Fatal", stringImage)
+
+                        val newUser = User(newID, null, null, email, stringImage)
                         userViewModel.insertUser(newUser)
                         sharedPreferences.edit().putString(KeyValues.SPUserLoggedID.key, newID).apply()
                     }
@@ -60,6 +75,29 @@ class LoginActivity : AppCompatActivity() {
 
         }
 
+    }
+
+    fun drawableToBitmap(drawable: Drawable): Bitmap? {
+        if (drawable is BitmapDrawable) {
+            return drawable.bitmap
+        }
+        var width = drawable.intrinsicWidth
+        width = if (width > 0) width else 1
+        var height = drawable.intrinsicHeight
+        height = if (height > 0) height else 1
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+        return bitmap
+    }
+
+    fun bitmapToString(bitmapImage: Bitmap): String {
+        val byteArray = ByteArrayOutputStream()
+        bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, byteArray)
+        val b = byteArray.toByteArray()
+        val imageEncoded: String = android.util.Base64.encodeToString(b, android.util.Base64.DEFAULT)
+        return imageEncoded
     }
 
     fun openMainScreen() {

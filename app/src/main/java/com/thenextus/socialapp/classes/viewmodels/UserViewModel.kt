@@ -16,16 +16,15 @@ class UserViewModel(private val repository: AppDatabaseRepository): ViewModel() 
 
     fun setUserForID(id: String) { user = repository.getSpesificUser(id) }
 
-    fun getSpesificUser(userID: String) = repository.getSpesificUser(userID)
-
-    fun getSpesificUserByEmail(email: String) = repository.getSpesificUserByEmail(email)
-
     fun insertUser(user: User) = viewModelScope.launch {
         repository.insertUser(user)
     }
 
-    fun deleteUser(userID: String) = viewModelScope.launch {
-        repository.deleteUser(userID)
+    fun updateUserInfo(changedUser: User) = viewModelScope.launch {
+        repository.updateUserInfo(changedUser)
     }
 
+    fun controlEmail(email: String): LiveData<User>? {
+        return repository.getSpesificUserByEmail(email)
+    }
 }

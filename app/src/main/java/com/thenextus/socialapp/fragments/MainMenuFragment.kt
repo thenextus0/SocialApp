@@ -8,13 +8,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.thenextus.socialapp.MainActivity
+import com.thenextus.socialapp.R
 import com.thenextus.socialapp.classes.KeyValues
 import com.thenextus.socialapp.classes.adapters.MainMenuRecyclerViewAdapter
 import com.thenextus.socialapp.classes.database.entities.ApiUser
@@ -72,8 +76,18 @@ class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListe
         binding.recyclerView.adapter = adapter
 
         apiRequestUserViewModel.userListLiveData.observe(viewLifecycleOwner, Observer { userList ->
-            adapter.setUserData(userList)
-            adapter.notifyDataSetChanged()
+            if (userList != null) {
+                val userIDList = arrayListOf<String>()
+
+                for (i in 0 until userList.size) userIDList.add(userList[i].login.uuid)
+
+                lifecycleScope.launch {
+                    var isFriendList = friendsViewModel.checkFriendship(userID!!, userIDList)
+
+                    adapter.setUserData(userList, isFriendList)
+                    adapter.notifyDataSetChanged()
+                }
+            }
         })
 
         (activity as MainActivity).toggleButtonVisibility(false)
@@ -86,15 +100,19 @@ class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListe
         val apiUser = ApiUser(access.login.uuid, access.name.first, access.name.last, access.email, access.picture.medium)
         val friend = Friend(UUID.randomUUID().toString(), userID!!, apiUser.userID)
 
-
-        //tekrar yapılacak
-
         apiUserViewModel.getSpesificApiUser(apiUser.userID).observe(viewLifecycleOwner, Observer {
             if (it == null) apiUserViewModel.insertApiUser(apiUser)
         })
 
         friendsViewModel.getSpecificFriend(userID!!, apiUser.userID).observe(viewLifecycleOwner, Observer {  specificFriend ->
-            if (specificFriend == null) friendsViewModel.insertFriend(friend)
+            if (specificFriend == null) {
+                friendsViewModel.insertFriend(friend)
+                Toast.makeText(requireContext(), "Arkadaş eklendi!", Toast.LENGTH_SHORT).show()
+            }
+
+            adapter.setSingleIsFriendData(position)
+            adapter.notifyItemChanged(position)
+
         })
     }
 

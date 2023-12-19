@@ -3,7 +3,10 @@ package com.thenextus.socialapp.fragments
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -103,14 +106,20 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
         userViewModel.user?.observe(requireActivity(), Observer { dbData ->
             binding.emailText.text = dbData.email
 
-            if (dbData.firstName != null) binding.usernameText.text = dbData.firstName
-            else binding.usernameText.text = "-"
+            if (dbData != null) {
 
-            if (dbData.picture != null) {
-                binding.profilePhoto.load(dbData.picture) {
-                    crossfade(true)
-                    placeholder(R.drawable.profile)
-                    transformations(CircleCropTransformation())
+                if (dbData.firstName != null) binding.usernameText.text = dbData.firstName
+                else binding.usernameText.text = "-"
+
+                if (dbData.lastName != null) binding.usernameText.text = "${binding.usernameText.text} ${dbData.lastName}"
+
+                if (dbData.picture != null) {
+                    val userBitmapPicture = stringToBitmap(dbData.picture)
+
+                    binding.profilePhoto.load(userBitmapPicture) {
+                        crossfade(true)
+                        placeholder(R.drawable.profile)
+                    }
                 }
             }
         })
@@ -123,6 +132,12 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
         friendsViewModel.getSpecificFriend(userID!!, apiUserID).observe(viewLifecycleOwner, Observer {  specificFriend ->
             if (specificFriend != null) friendsViewModel.deleteFriendship(specificFriend.friendRowID)
         })
+    }
+
+    fun stringToBitmap(stringImage: String?): Bitmap? {
+        val decodedByte: ByteArray = Base64.decode(stringImage, 0)
+        return BitmapFactory
+            .decodeByteArray(decodedByte, 0, decodedByte.size)
     }
 
     override fun onDestroy() {

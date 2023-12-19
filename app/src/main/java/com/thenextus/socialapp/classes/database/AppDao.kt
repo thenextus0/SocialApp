@@ -25,8 +25,9 @@ interface AppDao {
     @Query("INSERT INTO Users (userID, firstName, lastName, email, pictureURL) VALUES (:userID, :firstName, :lastName, :email, :pictureURL)")
     suspend fun insertUser(userID: String, firstName: String?, lastName: String?, email: String, pictureURL: String?)
 
-    @Query("DELETE FROM Users WHERE userID=:userID")
-    suspend fun deleteUser(userID: String)
+    @Query("UPDATE Users SET firstName= :firstName, lastName= :lastName, email= :email, pictureURL= :pictureURL WHERE userID= :userID")
+    fun updateUserInfo(userID: String, firstName: String?, lastName: String?, email: String, pictureURL: String?)
+
 
     //ApiUsers
 
@@ -57,6 +58,8 @@ interface AppDao {
     @Query("SELECT * FROM Friends WHERE friendUserID=:userID")
     fun getAllFriendsByID(userID: String): LiveData<List<Friend>>
 
+    @Query("SELECT * FROM Friends WHERE (friendUserID = :userID AND apiUserID IN (:userIDList))")
+    fun getFriendshipStatus(userID: String, userIDList: List<String>): List<Friend>
 
 
 }
