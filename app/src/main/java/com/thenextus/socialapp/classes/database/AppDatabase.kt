@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.thenextus.socialapp.classes.database.dao.ApiUsersDao
+import com.thenextus.socialapp.classes.database.dao.FriendsDao
+import com.thenextus.socialapp.classes.database.dao.UsersDao
 import com.thenextus.socialapp.classes.database.entities.ApiUser
 import com.thenextus.socialapp.classes.database.entities.Friend
 import com.thenextus.socialapp.classes.database.entities.User
@@ -13,6 +16,10 @@ import kotlinx.coroutines.Dispatchers
 abstract class AppDatabase: RoomDatabase() {
 
     abstract fun appDao(): AppDao
+
+    abstract fun usersDao(): UsersDao
+    abstract fun apiUsersDao(): ApiUsersDao
+    abstract fun friendsDao(): FriendsDao
 
     companion object {
         @Volatile

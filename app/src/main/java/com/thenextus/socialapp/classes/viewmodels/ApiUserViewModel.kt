@@ -30,14 +30,8 @@ class ApiUserViewModel(private val repository: AppDatabaseRepository): ViewModel
         }
     }
 
-
     fun insertApiUser(apiUser: ApiUser) = viewModelScope.launch {
         repository.insertApiUser(apiUser)
     }
-
-    fun deleteApiUser(userID: String) = viewModelScope.launch {
-        //repository.deleteApiUser(userID)
-    }
-
 
 }
