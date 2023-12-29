@@ -2,76 +2,79 @@ package com.thenextus.socialapp.classes.database
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.thenextus.socialapp.classes.database.dao.ApiUsersDao
+import com.thenextus.socialapp.classes.database.dao.FriendsDao
+import com.thenextus.socialapp.classes.database.dao.UsersDao
 import com.thenextus.socialapp.classes.database.entities.ApiUser
 import com.thenextus.socialapp.classes.database.entities.Friend
 import com.thenextus.socialapp.classes.database.entities.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class AppDatabaseRepository(val appDao: AppDao) {
+class AppDatabaseRepository(val usersDao: UsersDao, val apiUsersDao: ApiUsersDao, val friendsDao: FriendsDao) {
 
     //Users
 
     fun getAllUsers(): LiveData<List<User>>? {
-        return appDao.getAllUser()
+        return usersDao.getAllUser()
     }
 
     fun getSpesificUser(userID: String): LiveData<User> {
-        return appDao.getSpesificUser(userID)
+        return usersDao.getSpesificUser(userID)
     }
     fun getSpesificUserByEmail(email: String): LiveData<User>? {
-        return appDao.getSpesificUserByEmail(email)
+        return usersDao.getSpesificUserByEmail(email)
     }
 
     suspend fun insertUser(user: User) {
-        appDao.insertUser(user.userID, user.firstName, user.lastName, user.email, user.picture)
+        usersDao.insertUser(user.userID, user.firstName, user.lastName, user.email, user.picture)
     }
 
     suspend fun updateUserInfo(changedUser: User) {
         withContext(Dispatchers.IO) {
-            appDao.updateUserInfo(changedUser.userID, changedUser.firstName, changedUser.lastName, changedUser.email, changedUser.picture)
+            usersDao.updateUserInfo(changedUser.userID, changedUser.firstName, changedUser.lastName, changedUser.email, changedUser.picture)
         }
     }
 
     //ApiUsers
 
     fun getSpecificApiUser(apiUserID: String): LiveData<ApiUser> {
-        return appDao.getSpecificApiUser(apiUserID)
+        return apiUsersDao.getSpecificApiUser(apiUserID)
     }
 
     suspend fun getUsersByIdList(friendIDList: List<String>): List<ApiUser> {
         return withContext(Dispatchers.IO) {
-            appDao.getUsersByIdList(friendIDList)
+            apiUsersDao.getUsersByIdList(friendIDList)
         }
     }
 
     suspend fun insertApiUser(apiUser: ApiUser) {
-        appDao.insertApiUser(apiUser.userID, apiUser.firstName, apiUser.lastName, apiUser.email, apiUser.picture)
+        apiUsersDao.insertApiUser(apiUser.userID, apiUser.firstName, apiUser.lastName, apiUser.email, apiUser.picture)
     }
 
     //Friends
 
     suspend fun insertFriend(friend: Friend) {
-        appDao.insertFriend(friend.friendRowID, friend.friendUserID, friend.apiUserID)
+        friendsDao.insertFriend(friend.friendRowID, friend.friendUserID, friend.apiUserID)
     }
 
     suspend fun deleteFriendship(friendRowID: String) {
         withContext(Dispatchers.IO) {
-            appDao.deleteFriendShip(friendRowID)
+            friendsDao.deleteFriendShip(friendRowID)
         }
     }
 
     fun getSpecificFriend(userID: String, apiUserID: String): LiveData<Friend> {
-        return appDao.getSpecificFriend(userID, apiUserID)
+        return friendsDao.getSpecificFriend(userID, apiUserID)
     }
 
     fun getAllFriendsByID(userID: String): LiveData<List<Friend>> {
-        return appDao.getAllFriendsByID(userID)
+        return friendsDao.getAllFriendsByID(userID)
     }
 
     suspend fun checkFriendshipStatus(userID: String, userIDList: List<String>): List<Boolean> {
         val friendshipList = withContext(Dispatchers.IO) {
-            appDao.getFriendshipStatus(userID, userIDList)
+            friendsDao.getFriendshipStatus(userID, userIDList)
         }
 
         return userIDList.map { friendID ->

@@ -9,7 +9,18 @@ object ServiceLocator {
 
     fun initDatabase(appDatabase: AppDatabase) {
         this.appDatabase = appDatabase
-        appDatabaseRepository = appDatabase.appDao().let { AppDatabaseRepository(it) }
+
+        appDatabaseRepository = appDatabase.let { databaseClass ->
+
+            val usersDao = databaseClass.usersDao()
+            val apiUsersDao = databaseClass.apiUsersDao()
+            val friendsDao = databaseClass.friendsDao()
+            AppDatabaseRepository(usersDao, apiUsersDao, friendsDao)
+
+        }
+
+        //appDatabaseRepository = appDatabase.appDao().let { AppDatabaseRepository(it) }
+
     }
 
     fun provideAppDatabase(): AppDatabase {
