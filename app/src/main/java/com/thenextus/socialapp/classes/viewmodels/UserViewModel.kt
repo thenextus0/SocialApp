@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thenextus.socialapp.classes.database.entities.User
-import com.thenextus.socialapp.classes.database.AppDatabaseRepository
+import com.thenextus.socialapp.classes.viewmodels.repositorys.AppDatabaseRepository
 import kotlinx.coroutines.launch
 
 class UserViewModel(private val repository: AppDatabaseRepository): ViewModel() {

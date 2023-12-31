@@ -1,7 +1,6 @@
-package com.thenextus.socialapp.classes.database
+package com.thenextus.socialapp.classes.viewmodels.repositorys
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.thenextus.socialapp.classes.database.dao.ApiUsersDao
 import com.thenextus.socialapp.classes.database.dao.FriendsDao
 import com.thenextus.socialapp.classes.database.dao.UsersDao

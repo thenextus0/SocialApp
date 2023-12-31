@@ -9,5 +9,7 @@ class SocialApp: Application() {
 
         val appDatabase = AppDatabase.getInstance(this)
         ServiceLocator.initDatabase(appDatabase)
+
+        ServiceLocator.initRetrofit()
     }
 }

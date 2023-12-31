@@ -2,7 +2,7 @@ package com.thenextus.socialapp.classes.viewmodels.factory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.thenextus.socialapp.classes.database.AppDatabaseRepository
+import com.thenextus.socialapp.classes.viewmodels.repositorys.AppDatabaseRepository
 import com.thenextus.socialapp.classes.viewmodels.UserViewModel
 
 class UserViewModelFactory(private val appDatabaseRepository: AppDatabaseRepository): ViewModelProvider.Factory {

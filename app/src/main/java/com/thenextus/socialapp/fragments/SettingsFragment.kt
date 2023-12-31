@@ -1,9 +1,7 @@
 package com.thenextus.socialapp.fragments
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -31,12 +29,12 @@ import androidx.lifecycle.ViewModelProvider
 import coil.load
 import com.google.android.material.snackbar.Snackbar
 import com.thenextus.socialapp.LoginActivity
-import com.thenextus.socialapp.MainActivity
 import com.thenextus.socialapp.R
-import com.thenextus.socialapp.classes.KeyValues
 import com.thenextus.socialapp.classes.database.entities.User
 import com.thenextus.socialapp.classes.socialapp.ServiceLocator
+import com.thenextus.socialapp.classes.viewmodels.EventViewModel
 import com.thenextus.socialapp.classes.viewmodels.UserViewModel
+import com.thenextus.socialapp.classes.viewmodels.factory.EventViewModelFactory
 import com.thenextus.socialapp.classes.viewmodels.factory.UserViewModelFactory
 import com.thenextus.socialapp.databinding.FragmentSettingsBinding
 import java.io.ByteArrayOutputStream
@@ -46,14 +44,14 @@ class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var sharedPreferences: SharedPreferences
     private lateinit var userViewModel: UserViewModel
-    private var userID: String? = null
 
     private lateinit var launcher: ActivityResultLauncher<Intent>
     private lateinit var permissionLauncher: ActivityResultLauncher<String>
 
     var selectedBitmap: Bitmap? = null
+
+    private lateinit var eventViewModel: EventViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,12 +68,13 @@ class SettingsFragment : Fragment() {
         registerLauncher()
 
         userViewModel = ViewModelProvider(requireActivity(), UserViewModelFactory(ServiceLocator.provideRepository())).get(UserViewModel::class.java)
-        sharedPreferences = requireActivity().getSharedPreferences(KeyValues.SPUserFile.key, Context.MODE_PRIVATE)
-        userID = sharedPreferences.getString(KeyValues.SPUserLoggedID.key, null)
+        eventViewModel = ViewModelProvider(requireActivity(), EventViewModelFactory()).get(EventViewModel::class.java)
 
-        if (userID.isNullOrBlank()) {
-            sharedPreferences.edit().putBoolean(KeyValues.SPUserLogged.key, false).apply()
-            sharedPreferences.edit().putString(KeyValues.SPUserLoggedID.key, null).apply()
+        eventViewModel.initSP(requireActivity())
+        eventViewModel.setUserID(requireActivity())
+
+        if (eventViewModel.userID.isNullOrBlank()) {
+            eventViewModel.setSPDataToEmpty(requireActivity())
 
             val intent = Intent(requireActivity(), LoginActivity::class.java)
             startActivity(intent)
@@ -83,7 +82,7 @@ class SettingsFragment : Fragment() {
         }
         else {
             userViewModel.user!!.observe(viewLifecycleOwner, Observer { userData ->
-                userViewModel.setUserForID(userID!!)
+                userViewModel.setUserForID(eventViewModel.userID!!)
                 //println(userData)
                 if (userData != null) {
                     if (userData.firstName != null) binding.firstNameEditText.setText(userData.firstName)
@@ -105,8 +104,8 @@ class SettingsFragment : Fragment() {
         binding.profilePhoto.setOnClickListener { profileImage -> changeImage(profileImage) }
         binding.setChangesButton.setOnClickListener { setChangesButton -> setChanges(setChangesButton) }
 
-        (activity as MainActivity).toggleButtonVisibility(false)
-        (activity as MainActivity).toogleBottomNavigationVisibility(false)
+        eventViewModel.setButtonVisibility(false)
+        eventViewModel.setNavigationVisibility(false)
     }
 
     private fun changeImage(view: View) {
@@ -183,7 +182,7 @@ class SettingsFragment : Fragment() {
         //binding.editTextText.text.toString().replace("\\s".toRegex(), "")
 
         userViewModel.user!!.observe(viewLifecycleOwner, Observer { userData ->
-            userViewModel.setUserForID(userID!!)
+            userViewModel.setUserForID(eventViewModel.userID!!)
             if (userData != null) {
                 //println(userData)
                 var fNameChange: String?

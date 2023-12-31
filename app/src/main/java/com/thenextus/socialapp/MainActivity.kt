@@ -1,25 +1,22 @@
 package com.thenextus.socialapp
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.thenextus.socialapp.classes.KeyValues
-import com.thenextus.socialapp.classes.socialapp.ServiceLocator
-import com.thenextus.socialapp.classes.viewmodels.ApiUserViewModel
-import com.thenextus.socialapp.classes.viewmodels.FriendsViewModel
-import com.thenextus.socialapp.classes.viewmodels.factory.ApiUserViewModelFactory
-import com.thenextus.socialapp.classes.viewmodels.factory.FriendsViewModelFactory
+import com.thenextus.socialapp.classes.viewmodels.EventViewModel
+import com.thenextus.socialapp.classes.viewmodels.factory.EventViewModelFactory
 import com.thenextus.socialapp.databinding.ActivityMainBinding
-import com.thenextus.socialapp.fragments.MainMenuFragmentDirections
 import com.thenextus.socialapp.fragments.ProfileFragmentDirections
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -27,6 +24,8 @@ class MainActivity : AppCompatActivity() {
     private val navController get() = navHostFragment.navController
 
     private lateinit var binding: ActivityMainBinding
+
+    private lateinit var eventViewModel: EventViewModel
 
     //private lateinit var sharedPreferences: SharedPreferences
 
@@ -37,6 +36,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigation.setupWithNavController(navController)
 
+        eventViewModel = ViewModelProvider(this, EventViewModelFactory()).get(EventViewModel::class.java)
+
+        eventViewModel.viewModelScope.launch { eventViewModel.buttonVisibilityFlow.collect { showButton -> toggleButtonVisibility(showButton) } }
+        eventViewModel.viewModelScope.launch { eventViewModel.navigationVisibilityFlow.collect { showNavigation -> toogleBottomNavigationVisibility(showNavigation) } }
 
         /*sharedPreferences = this.getSharedPreferences(KeyValues.SPUserFile.key, Context.MODE_PRIVATE)
         val isLogged: Boolean = sharedPreferences.getBoolean(KeyValues.SPUserLogged.key, false)

@@ -1,15 +1,11 @@
 package com.thenextus.socialapp.classes.viewmodels
 
-import android.content.Context
-import android.util.Log
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thenextus.socialapp.classes.database.entities.ApiUser
-import com.thenextus.socialapp.classes.database.AppDatabaseRepository
+import com.thenextus.socialapp.classes.viewmodels.repositorys.AppDatabaseRepository
 import com.thenextus.socialapp.classes.database.entities.Friend
 import kotlinx.coroutines.launch
 

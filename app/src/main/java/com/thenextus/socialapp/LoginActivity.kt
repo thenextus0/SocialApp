@@ -1,17 +1,13 @@
 package com.thenextus.socialapp
 
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Base64
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.Observer
@@ -19,7 +15,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.thenextus.socialapp.classes.KeyValues
 import com.thenextus.socialapp.classes.database.entities.User
 import com.thenextus.socialapp.classes.socialapp.ServiceLocator
+import com.thenextus.socialapp.classes.viewmodels.EventViewModel
 import com.thenextus.socialapp.classes.viewmodels.UserViewModel
+import com.thenextus.socialapp.classes.viewmodels.factory.EventViewModelFactory
 import com.thenextus.socialapp.classes.viewmodels.factory.UserViewModelFactory
 import com.thenextus.socialapp.databinding.ActivityLoginBinding
 import java.io.ByteArrayOutputStream
@@ -31,16 +29,17 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var userViewModel: UserViewModel
 
-    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var eventViewModel: EventViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        sharedPreferences = this.getSharedPreferences(KeyValues.SPUserFile.key, Context.MODE_PRIVATE)
-        val isLogged: Boolean = sharedPreferences.getBoolean(KeyValues.SPUserLogged.key, false)
+        eventViewModel = ViewModelProvider(this, EventViewModelFactory()).get(EventViewModel::class.java)
+        eventViewModel.initSP(this)
 
-        if (isLogged) openMainScreen()
+        if (eventViewModel.getSPDataIsLogged(this)) openMainScreen()
         else userViewModel = ViewModelProvider(this@LoginActivity, UserViewModelFactory(ServiceLocator.provideRepository())).get(UserViewModel::class.java)
 
         binding.loginButton.setOnClickListener {
@@ -53,7 +52,7 @@ class LoginActivity : AppCompatActivity() {
 
                 userViewModel.user?.observe(this@LoginActivity, Observer { dbData ->
                     dbData?.let {
-                        sharedPreferences.edit().putString(KeyValues.SPUserLoggedID.key, dbData.userID).apply()
+                        eventViewModel.changeSPUserID(dbData.userID)
                     } ?: run {
                         val newID = UUID.randomUUID().toString()
 
@@ -64,9 +63,10 @@ class LoginActivity : AppCompatActivity() {
 
                         val newUser = User(newID, null, null, email, stringImage)
                         userViewModel.insertUser(newUser)
-                        sharedPreferences.edit().putString(KeyValues.SPUserLoggedID.key, newID).apply()
+
+                        eventViewModel.changeSPUserID(newID)
                     }
-                    sharedPreferences.edit().putBoolean(KeyValues.SPUserLogged.key, true).apply()
+                    eventViewModel.changeSPUserLogged(true)
                     openMainScreen()
 
                 })
