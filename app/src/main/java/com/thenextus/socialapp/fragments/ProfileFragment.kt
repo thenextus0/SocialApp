@@ -54,10 +54,10 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        friendsViewModel = ViewModelProvider(requireActivity(), FriendsViewModelFactory(ServiceLocator.provideRepository())).get(FriendsViewModel::class.java)
-        apiUserViewModel = ViewModelProvider(requireActivity(), ApiUserViewModelFactory(ServiceLocator.provideRepository())).get(ApiUserViewModel::class.java)
+        friendsViewModel = ViewModelProvider(this, FriendsViewModelFactory(ServiceLocator.provideRepository())).get(FriendsViewModel::class.java)
+        apiUserViewModel = ViewModelProvider(this, ApiUserViewModelFactory(ServiceLocator.provideRepository())).get(ApiUserViewModel::class.java)
 
-        userViewModel = ViewModelProvider(requireActivity(), UserViewModelFactory(ServiceLocator.provideRepository())).get(UserViewModel::class.java)
+        userViewModel = ViewModelProvider(this, UserViewModelFactory(ServiceLocator.provideRepository())).get(UserViewModel::class.java)
 
         eventViewModel = ViewModelProvider(requireActivity(), EventViewModelFactory()).get(EventViewModel::class.java)
         eventViewModel.initSP(requireActivity())

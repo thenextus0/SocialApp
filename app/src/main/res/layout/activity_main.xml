@@ -10,21 +10,21 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/actionbarColor"
+
         android:elevation="5dp"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+        <!--android:background="@color/actionbarColor" -->
 
         <TextView
             android:id="@+id/actionbarText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/SocialAppSplash.h1"
             android:autoSizeTextType="none"
             android:text="SocialApp"
-            android:textSize="25sp"
-            android:textStyle="bold"
             tools:layout_editor_absoluteX="16dp"
             tools:layout_editor_absoluteY="18dp" />
 
@@ -38,6 +38,7 @@
             android:src="@drawable/settings"
             android:title="My Button"
             app:showAsAction="always"
+            android:background="@android:color/transparent"
             tools:layout_editor_absoluteX="363dp"
             tools:layout_editor_absoluteY="8dp" />
 

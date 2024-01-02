@@ -67,11 +67,13 @@ class SettingsFragment : Fragment() {
 
         registerLauncher()
 
-        userViewModel = ViewModelProvider(requireActivity(), UserViewModelFactory(ServiceLocator.provideRepository())).get(UserViewModel::class.java)
+        userViewModel = ViewModelProvider(this, UserViewModelFactory(ServiceLocator.provideRepository())).get(UserViewModel::class.java)
         eventViewModel = ViewModelProvider(requireActivity(), EventViewModelFactory()).get(EventViewModel::class.java)
 
         eventViewModel.initSP(requireActivity())
         eventViewModel.setUserID(requireActivity())
+
+        userViewModel.setUserForID(eventViewModel.userID!!)
 
         if (eventViewModel.userID.isNullOrBlank()) {
             eventViewModel.setSPDataToEmpty(requireActivity())
@@ -81,7 +83,7 @@ class SettingsFragment : Fragment() {
             requireActivity().finish()
         }
         else {
-            userViewModel.user!!.observe(viewLifecycleOwner, Observer { userData ->
+            userViewModel.user?.observe(viewLifecycleOwner, Observer { userData ->
                 userViewModel.setUserForID(eventViewModel.userID!!)
                 //println(userData)
                 if (userData != null) {
@@ -181,7 +183,7 @@ class SettingsFragment : Fragment() {
     fun setChanges(view: View) {
         //binding.editTextText.text.toString().replace("\\s".toRegex(), "")
 
-        userViewModel.user!!.observe(viewLifecycleOwner, Observer { userData ->
+        userViewModel.user?.observe(viewLifecycleOwner, Observer { userData ->
             userViewModel.setUserForID(eventViewModel.userID!!)
             if (userData != null) {
                 //println(userData)

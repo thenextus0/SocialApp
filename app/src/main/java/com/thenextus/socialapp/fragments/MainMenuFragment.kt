@@ -52,8 +52,8 @@ class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListe
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        apiUserViewModel = ViewModelProvider(requireActivity(), ApiUserViewModelFactory(ServiceLocator.provideRepository())).get(ApiUserViewModel::class.java)
-        friendsViewModel = ViewModelProvider(requireActivity(), FriendsViewModelFactory(ServiceLocator.provideRepository())).get(FriendsViewModel::class.java)
+        apiUserViewModel = ViewModelProvider(this, ApiUserViewModelFactory(ServiceLocator.provideRepository())).get(ApiUserViewModel::class.java)
+        friendsViewModel = ViewModelProvider(this, FriendsViewModelFactory(ServiceLocator.provideRepository())).get(FriendsViewModel::class.java)
 
         eventViewModel = ViewModelProvider(requireActivity(), EventViewModelFactory()).get(EventViewModel::class.java)
 

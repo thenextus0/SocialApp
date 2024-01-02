@@ -4,7 +4,9 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="splashBG">#FFFFFF</color>
+    <color name="splashDarkBG">#2E2C2C</color>
     <color name="splashIconBG">#FFFFFF</color>
+    <color name="splashIconDarkBG">#2E2C2C</color>
 
     <color name="buttonColor">#801090CC</color>
     <color name="buttonTextColor">#151313</color>

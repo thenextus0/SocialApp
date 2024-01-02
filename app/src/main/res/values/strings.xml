@@ -27,4 +27,6 @@
     <string name="SettingsFirstNameHintText">İsim</string>
     <string name="SettingsLastNameLabelText">Soyisim</string>
     <string name="SettingsLastNameHintText">Soyisim</string>
+    <string name="settingsFragmentProfilePhotoText">Profil fotoğrafı değiştirmek için tıkla!</string>
+    <string name="settingsFragmentFieldText">Aşağıdaki alanları doldurunuz.</string>
 </resources>
