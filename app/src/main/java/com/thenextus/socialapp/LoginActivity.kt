@@ -1,7 +1,6 @@
 package com.thenextus.socialapp
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
@@ -12,7 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.thenextus.socialapp.classes.KeyValues
+import androidx.lifecycle.viewModelScope
 import com.thenextus.socialapp.classes.database.entities.User
 import com.thenextus.socialapp.classes.socialapp.ServiceLocator
 import com.thenextus.socialapp.classes.viewmodels.EventViewModel
@@ -20,6 +19,8 @@ import com.thenextus.socialapp.classes.viewmodels.UserViewModel
 import com.thenextus.socialapp.classes.viewmodels.factory.EventViewModelFactory
 import com.thenextus.socialapp.classes.viewmodels.factory.UserViewModelFactory
 import com.thenextus.socialapp.databinding.ActivityLoginBinding
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.util.UUID
 
@@ -50,26 +51,26 @@ class LoginActivity : AppCompatActivity() {
 
                 userViewModel.setUserForEmail(email)
 
-                userViewModel.user?.observe(this@LoginActivity, Observer { dbData ->
-                    dbData?.let {
-                        eventViewModel.changeSPUserID(dbData.userID)
-                    } ?: run {
-                        val newID = UUID.randomUUID().toString()
+                userViewModel.viewModelScope.launch {
+                    userViewModel.user.collect { dbData ->
+                        dbData?.let { eventViewModel.changeSPUserID(dbData.userID)
+                        } ?: run {
+                            val newID = UUID.randomUUID().toString()
 
-                        var drawableImage: Drawable = AppCompatResources.getDrawable(this@LoginActivity, R.drawable.profile)!!
-                        val bitmapImage = drawableToBitmap(drawableImage)
-                        val stringImage = bitmapToString(bitmapImage!!)
-                        //Log.d("Fatal", stringImage)
+                            var drawableImage: Drawable = AppCompatResources.getDrawable(this@LoginActivity, R.drawable.profile)!!
+                            val bitmapImage = drawableToBitmap(drawableImage)
+                            val stringImage = bitmapToString(bitmapImage!!)
+                            //Log.d("Fatal", stringImage)
 
-                        val newUser = User(newID, null, null, email, stringImage)
-                        userViewModel.insertUser(newUser)
+                            val newUser = User(newID, null, null, email, stringImage)
+                            userViewModel.insertUser(newUser)
 
-                        eventViewModel.changeSPUserID(newID)
+                            eventViewModel.changeSPUserID(newID)
+                        }
+                        eventViewModel.changeSPUserLogged(true)
+                        openMainScreen()
                     }
-                    eventViewModel.changeSPUserLogged(true)
-                    openMainScreen()
-
-                })
+                }
             }
             else Toast.makeText(this, "E-mail alanını boş bırakamazsın.", Toast.LENGTH_SHORT).show()
 

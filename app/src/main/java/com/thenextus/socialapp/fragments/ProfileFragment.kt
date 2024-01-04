@@ -13,12 +13,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import com.thenextus.socialapp.LoginActivity
 import com.thenextus.socialapp.R
-import com.thenextus.socialapp.classes.adapters.ProfileRecyclerViewAdapter
-import com.thenextus.socialapp.classes.adapters.diffutil.ProfileRVAdapter
+import com.thenextus.socialapp.classes.adapters.ProfileRVAdapter
 import com.thenextus.socialapp.classes.socialapp.ServiceLocator
 import com.thenextus.socialapp.classes.viewmodels.ApiUserViewModel
 import com.thenextus.socialapp.classes.viewmodels.EventViewModel
@@ -29,6 +29,9 @@ import com.thenextus.socialapp.classes.viewmodels.factory.EventViewModelFactory
 import com.thenextus.socialapp.classes.viewmodels.factory.FriendsViewModelFactory
 import com.thenextus.socialapp.classes.viewmodels.factory.UserViewModelFactory
 import com.thenextus.socialapp.databinding.FragmentProfileBinding
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
 
 class ProfileFragment : Fragment(), ProfileRVAdapter.OnRemoveClickListener {
 
@@ -76,63 +79,69 @@ class ProfileFragment : Fragment(), ProfileRVAdapter.OnRemoveClickListener {
         adapter.setOnRemoveClickListener(this)
         binding.recyclerView.adapter = adapter
 
-        friendsViewModel.getAllFriendsByID(eventViewModel.userID!!).observe(viewLifecycleOwner, Observer { friendList ->
-            //println(friendList)
-            if (friendList != null) {
-                apiUserViewModel.loadUsersByIdList(friendList)
-                apiUserViewModel.allApiUsersByID.observe(viewLifecycleOwner, Observer { apiUsers ->
-                    if (apiUsers != null) {
-                        adapter.updateData(apiUsers)
-                    }
-                })
-            }
-        })
-
-        userViewModel.user?.observe(requireActivity(), Observer { dbData ->
-            binding.emailText.text = dbData.email
-
-            if (dbData != null) {
-
-                if (dbData.firstName != null) binding.usernameText.text = dbData.firstName
-                else binding.usernameText.text = "-"
-
-                if (dbData.lastName != null) binding.usernameText.text = "${binding.usernameText.text} ${dbData.lastName}"
-
-                if (dbData.picture != null) {
-                    val userBitmapPicture = stringToBitmap(dbData.picture)
-
-                    binding.profilePhoto.load(userBitmapPicture) {
-                        crossfade(true)
-                        placeholder(R.drawable.profile)
+        friendsViewModel.viewModelScope.launch {
+            friendsViewModel.getAllFriendsByID(eventViewModel.userID!!).collect { friendList ->
+                //println(friendList)
+                if (friendList.isNotEmpty()) {
+                    apiUserViewModel.loadUsersByIdList(friendList)
+                    apiUserViewModel.viewModelScope.launch {
+                        apiUserViewModel.allApiUsersByIDFlow.collect { apiUsers ->
+                            if (apiUsers.isNotEmpty()) adapter.updateData(apiUsers)
+                        }
                     }
                 }
             }
-        })
+        }
+
+        userViewModel.viewModelScope.launch {
+            userViewModel.user.collect { dbData ->
+                if (dbData != null) {
+                    binding.emailText.text = dbData.email
+                    if (dbData.firstName != null) binding.usernameText.text = dbData.firstName
+                    else binding.usernameText.text = "-"
+
+                    if (dbData.lastName != null) binding.usernameText.text = "${binding.usernameText.text} ${dbData.lastName}"
+
+                    if (dbData.picture != null) {
+                        val userBitmapPicture = stringToBitmap(dbData.picture)
+
+                        binding.profilePhoto.load(userBitmapPicture) {
+                            crossfade(true)
+                            placeholder(R.drawable.profile)
+                        }
+                    }
+                }
+            }
+        }
 
         eventViewModel.setButtonVisibility(true)
         eventViewModel.setNavigationVisibility(true)
     }
 
+    //burası -> ApiUserRequest
     override fun onRemoveClick(position: Int, apiUserID: String) {
-        friendsViewModel.getSpecificFriend(eventViewModel.userID!!, apiUserID).observe(viewLifecycleOwner, Observer {  specificFriend ->
-            if (specificFriend != null) {
-                friendsViewModel.deleteFriendship(specificFriend.friendRowID)
-                Toast.makeText(requireContext(), "Arkadaş silindi!", Toast.LENGTH_SHORT).show()
+        friendsViewModel.viewModelScope.launch {
+            friendsViewModel.getSpecificFriend(eventViewModel.userID!!, apiUserID)
+                .take(1)
+                .collect { specificFriend ->
+                if (specificFriend != null) {
+                    friendsViewModel.deleteFriendship(specificFriend.friendRowID)
+                    Toast.makeText(requireContext(), "Arkadaş silindi!", Toast.LENGTH_SHORT).show()
 
-                friendsViewModel.getAllFriendsByID(eventViewModel.userID!!).observe(viewLifecycleOwner, Observer { friendList ->
-                    //println(friendList)
-                    if (friendList != null) {
-                        apiUserViewModel.loadUsersByIdList(friendList)
-                        apiUserViewModel.allApiUsersByID.observe(viewLifecycleOwner, Observer { apiUsers ->
-                                adapter.updateData(apiUsers)
-                        })
+                    friendsViewModel.getAllFriendsByID(eventViewModel.userID!!).collect { friendList ->
+                        //println(friendList)
+                        if (friendList.isNotEmpty()) {
+                            apiUserViewModel.loadUsersByIdList(friendList)
+                            apiUserViewModel.viewModelScope.launch {
+                                apiUserViewModel.allApiUsersByIDFlow.collect { apiUsers ->
+                                    if (apiUsers.isNotEmpty()) adapter.updateData(apiUsers)
+                                }
+                            }
+                        }
                     }
-                })
-
-
-
+                }
             }
-        })
+        }
     }
 
     fun stringToBitmap(stringImage: String?): Bitmap? {

@@ -10,8 +10,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.thenextus.socialapp.classes.adapters.diffutil.MainMenuRVAdapter
+import com.thenextus.socialapp.classes.adapters.MainMenuRVAdapter
 import com.thenextus.socialapp.classes.database.entities.ApiUser
 import com.thenextus.socialapp.classes.database.entities.Friend
 import com.thenextus.socialapp.classes.socialapp.ServiceLocator
@@ -23,6 +24,10 @@ import com.thenextus.socialapp.classes.viewmodels.factory.ApiUserViewModelFactor
 import com.thenextus.socialapp.classes.viewmodels.factory.EventViewModelFactory
 import com.thenextus.socialapp.classes.viewmodels.factory.FriendsViewModelFactory
 import com.thenextus.socialapp.databinding.FragmentMainMenuBinding
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -65,18 +70,16 @@ class MainMenuFragment : Fragment(), MainMenuRVAdapter.OnAddClickListener {
         adapter.setOnClickListener(this)
         binding.recyclerView.adapter = adapter
 
-        apiRequestUserViewModel.userListLiveData.observe(viewLifecycleOwner, Observer { userList ->
-            if (userList != null) {
-                val userIDList = arrayListOf<String>()
+        apiRequestUserViewModel.getUsers()
 
-                for (i in 0 until userList.size) userIDList.add(userList[i].login.uuid)
-
-                lifecycleScope.launch {
-                    val isFriendList = friendsViewModel.checkFriendship(eventViewModel.userID!!, userIDList)
-                    adapter.updateData(userList, isFriendList)
-                }
+        apiRequestUserViewModel.userListFlow.onEach { userList ->
+            val userIDList = arrayListOf<String>()
+            for (i in 0 until userList.size) userIDList.add(userList[i].login.uuid)
+            lifecycleScope.launch {
+                val isFriendList = friendsViewModel.checkFriendship(eventViewModel.userID!!, userIDList)
+                adapter.updateData(userList, isFriendList)
             }
-        })
+        }.launchIn(lifecycleScope)
 
         eventViewModel.setButtonVisibility(false)
         eventViewModel.setNavigationVisibility(true)
@@ -84,21 +87,26 @@ class MainMenuFragment : Fragment(), MainMenuRVAdapter.OnAddClickListener {
 
     override fun onAddClick(position: Int) {
 
-        val access = apiRequestUserViewModel.userListLiveData.value!![position]
+        val access = apiRequestUserViewModel.userListFlow.value[position]
         val apiUser = ApiUser(access.login.uuid, access.name.first, access.name.last, access.email, access.picture.medium)
         val friend = Friend(UUID.randomUUID().toString(), eventViewModel.userID!!, apiUser.userID)
 
-        apiUserViewModel.getSpesificApiUser(apiUser.userID).observe(viewLifecycleOwner, Observer {
-            if (it == null) apiUserViewModel.insertApiUser(apiUser)
-        })
+        apiUserViewModel.viewModelScope.launch {
+            apiUserViewModel.getSpecificApiUser(apiUser.userID).collect { apiUserFromFlow ->
+                if (apiUserFromFlow == null) apiUserViewModel.insertApiUser(apiUser)
+            }
+        }
 
-        friendsViewModel.getSpecificFriend(eventViewModel.userID!!, apiUser.userID).observe(viewLifecycleOwner, Observer {  specificFriend ->
-            if (specificFriend == null) {
-                friendsViewModel.insertFriend(friend)
-                Toast.makeText(requireContext(), "Arkadaş eklendi!", Toast.LENGTH_SHORT).show()
+        friendsViewModel.viewModelScope.launch {
+            friendsViewModel.getSpecificFriend(eventViewModel.userID!!, apiUser.userID)
+                .take(1)
+                .collect { specificFriend ->
+                if (specificFriend == null) {
+                    friendsViewModel.insertFriend(friend)
+                    Toast.makeText(requireContext(), "Arkadaş eklendi!", Toast.LENGTH_SHORT).show()
 
-                apiRequestUserViewModel.userListLiveData.observe(viewLifecycleOwner, Observer { userList ->
-                    if (userList != null) {
+                    apiRequestUserViewModel.getUsers()
+                    apiRequestUserViewModel.userListFlow.onEach { userList ->
                         val userIDList = arrayListOf<String>()
                         for (i in 0 until userList.size) { userIDList.add(userList[i].login.uuid) }
 
@@ -106,11 +114,10 @@ class MainMenuFragment : Fragment(), MainMenuRVAdapter.OnAddClickListener {
                             var isFriendList = friendsViewModel.checkFriendship(eventViewModel.userID!!, userIDList)
                             adapter.updateData(userList, isFriendList)
                         }
-                    }
-                })
-
+                    }.launchIn(lifecycleScope)
+                }
             }
-        })
+        }
     }
 
     override fun onDestroy() {

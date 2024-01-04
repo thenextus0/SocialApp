@@ -4,12 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.thenextus.socialapp.classes.database.entities.ApiUser
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ApiUsersDao {
 
     @Query("SELECT * FROM ApiUsers WHERE userID=:apiUserID")
-    fun getSpecificApiUser(apiUserID: String): LiveData<ApiUser>
+    fun getSpecificApiUser(apiUserID: String): Flow<ApiUser?>
 
     @Query("SELECT * FROM ApiUsers WHERE userID IN (:friendList)")
     suspend fun getUsersByIdList(friendList: List<String>): List<ApiUser>

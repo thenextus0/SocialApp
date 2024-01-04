@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import coil.load
 import com.google.android.material.snackbar.Snackbar
 import com.thenextus.socialapp.LoginActivity
@@ -37,6 +38,8 @@ import com.thenextus.socialapp.classes.viewmodels.UserViewModel
 import com.thenextus.socialapp.classes.viewmodels.factory.EventViewModelFactory
 import com.thenextus.socialapp.classes.viewmodels.factory.UserViewModelFactory
 import com.thenextus.socialapp.databinding.FragmentSettingsBinding
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 
 class SettingsFragment : Fragment() {
@@ -83,24 +86,26 @@ class SettingsFragment : Fragment() {
             requireActivity().finish()
         }
         else {
-            userViewModel.user?.observe(viewLifecycleOwner, Observer { userData ->
-                userViewModel.setUserForID(eventViewModel.userID!!)
-                //println(userData)
-                if (userData != null) {
-                    if (userData.firstName != null) binding.firstNameEditText.setText(userData.firstName)
-                    if (userData.lastName != null) binding.lastNameEditText.setText(userData.lastName)
-                    binding.emailEditText.setText(userData.email)
+            userViewModel.viewModelScope.launch {
+                userViewModel.user.collect { userData ->
+                    userViewModel.setUserForID(eventViewModel.userID!!)
+                    //println(userData)
+                    if (userData != null) {
+                        if (userData.firstName != null) binding.firstNameEditText.setText(userData.firstName)
+                        if (userData.lastName != null) binding.lastNameEditText.setText(userData.lastName)
+                        binding.emailEditText.setText(userData.email)
 
-                    if (userData.picture != null) {
-                        val userBitmapPicture = stringToBitmap(userData.picture)
-                        //binding.profilePhoto.setImageBitmap(userBitmapPicture)
-                        binding.profilePhoto.load(userBitmapPicture) {
-                            crossfade(true)
-                            placeholder(R.drawable.profile)
+                        if (userData.picture != null) {
+                            val userBitmapPicture = stringToBitmap(userData.picture)
+                            //binding.profilePhoto.setImageBitmap(userBitmapPicture)
+                            binding.profilePhoto.load(userBitmapPicture) {
+                                crossfade(true)
+                                placeholder(R.drawable.profile)
+                            }
                         }
                     }
                 }
-            })
+            }
         }
 
         binding.profilePhoto.setOnClickListener { profileImage -> changeImage(profileImage) }
@@ -183,67 +188,62 @@ class SettingsFragment : Fragment() {
     fun setChanges(view: View) {
         //binding.editTextText.text.toString().replace("\\s".toRegex(), "")
 
-        userViewModel.user?.observe(viewLifecycleOwner, Observer { userData ->
-            userViewModel.setUserForID(eventViewModel.userID!!)
-            if (userData != null) {
-                //println(userData)
-                var fNameChange: String?
-                var lNameChange: String?
-                var emailChange: String = ""
-                var pictureChange: String?
-                var uniqueEmail = true
-                var isChanged = false
+        userViewModel.viewModelScope.launch {
+            userViewModel.user.collect {userData ->
+                userViewModel.setUserForID(eventViewModel.userID!!)
+                if (userData != null) {
+                    //println(userData)
+                    var fNameChange: String?
+                    var lNameChange: String?
+                    var emailChange: String = ""
+                    var pictureChange: String?
+                    var uniqueEmail = true
+                    var isChanged = false
 
-                val firstName = binding.firstNameEditText.text.toString()
-                if (firstName.replace("\\s".toRegex(), "") != "" && userData.firstName != firstName) { isChanged = true; fNameChange = firstName }
-                else fNameChange = userData.firstName
+                    val firstName = binding.firstNameEditText.text.toString()
+                    if (firstName.replace("\\s".toRegex(), "") != "" && userData.firstName != firstName) { isChanged = true; fNameChange = firstName }
+                    else fNameChange = userData.firstName
 
-                val lastName = binding.lastNameEditText.text.toString()
-                if (lastName.replace("\\s".toRegex(), "") != "" && userData.lastName != lastName) { isChanged = true; lNameChange = lastName }
-                else lNameChange = userData.lastName
+                    val lastName = binding.lastNameEditText.text.toString()
+                    if (lastName.replace("\\s".toRegex(), "") != "" && userData.lastName != lastName) { isChanged = true; lNameChange = lastName }
+                    else lNameChange = userData.lastName
 
-                val email = binding.emailEditText.text.toString(); userViewModel.controlEmail(email)
-                if (email.replace("\\s".toRegex(), "") != "" && userData.email != email) {
+                    val email = binding.emailEditText.text.toString(); userViewModel.controlEmail(email)
+                    if (email.replace("\\s".toRegex(), "") != "" && userData.email != email) {
 
-                    userViewModel.controlEmail(email)!!.observe(viewLifecycleOwner, Observer { emailUser ->
-                        isChanged = true
-                        if (emailUser == null) { emailChange = email }
-                        else uniqueEmail = false
-                    })
+                        userViewModel.controlEmail(email).collect { emailUser ->
+                            isChanged = true
+                            if (emailUser == null) { emailChange = email }
+                            else uniqueEmail = false
+                        }
+                    }
+                    else emailChange = userData.email
 
+                    val bitmapImage = drawableToBitmap(binding.profilePhoto.drawable) /*binding.profilePhoto.drawable.toBitmap()*/
+                    val stringImage = bitmapToString(bitmapImage!!)
+
+                    val bitmapDefault = drawableToBitmap(AppCompatResources.getDrawable(requireActivity(), R.drawable.profile)!!)
+                    val stringDefault = bitmapToString(bitmapDefault!!)
+
+                    if (stringImage != stringDefault) { //profil resmi default picture değil.
+                        if (stringImage != userData.picture) { isChanged = true; pictureChange = stringImage } /*user kaydettiği bir önceki görseli kullanmıyor.*/
+                        else pictureChange = userData.picture
+                    } else pictureChange = stringDefault /*kullanıcı default fotoğrafı kullanıyor.*/
+
+                    if (isChanged) {
+                        if (uniqueEmail) {
+                            var changedUser = User(userData.userID, fNameChange, lNameChange, emailChange, pictureChange)
+                            userViewModel.updateUserInfo(changedUser)
+
+                            Toast.makeText(requireContext(), "Değişiklikler yükleniyor..", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), "Değişiklikler yüklendi! Profiline dönebilirsin.", Toast.LENGTH_SHORT).show()
+                        } else Toast.makeText(requireContext(), "Bu email adresi kullanılıyor. Değişiklikleri yapmak için lütfen başka bir e-mail adresi giriniz.", Toast.LENGTH_SHORT).show()
+                    } else Toast.makeText(requireContext(), "Hiçbir değişiklik yapmadınız.", Toast.LENGTH_SHORT).show()
 
 
                 }
-                else emailChange = userData.email
-
-                val bitmapImage = drawableToBitmap(binding.profilePhoto.drawable) /*binding.profilePhoto.drawable.toBitmap()*/
-                val stringImage = bitmapToString(bitmapImage!!)
-
-                val bitmapDefault = drawableToBitmap(AppCompatResources.getDrawable(requireActivity(), R.drawable.profile)!!)
-                val stringDefault = bitmapToString(bitmapDefault!!)
-
-                if (stringImage != stringDefault) { //profil resmi default picture değil.
-                    if (stringImage != userData.picture) { isChanged = true; pictureChange = stringImage } /*user kaydettiği bir önceki görseli kullanmıyor.*/
-                    else pictureChange = userData.picture
-                } else pictureChange = stringDefault /*kullanıcı default fotoğrafı kullanıyor.*/
-
-
-
-
-                if (isChanged) {
-                    if (uniqueEmail) {
-                        var changedUser = User(userData.userID, fNameChange, lNameChange, emailChange, pictureChange)
-                        userViewModel.updateUserInfo(changedUser)
-
-                        Toast.makeText(requireContext(), "Değişiklikler yükleniyor..", Toast.LENGTH_SHORT).show()
-                        Toast.makeText(requireContext(), "Değişiklikler yüklendi! Profiline dönebilirsin.", Toast.LENGTH_SHORT).show()
-                    } else Toast.makeText(requireContext(), "Bu email adresi kullanılıyor. Değişiklikleri yapmak için lütfen başka bir e-mail adresi giriniz.", Toast.LENGTH_SHORT).show()
-                } else Toast.makeText(requireContext(), "Hiçbir değişiklik yapmadınız.", Toast.LENGTH_SHORT).show()
-
-
             }
-        })
-
+        }
 
     }
 
@@ -275,8 +275,6 @@ class SettingsFragment : Fragment() {
         return BitmapFactory
             .decodeByteArray(decodedByte, 0, decodedByte.size)
     }
-
-
 
     override fun onDestroy() {
         super.onDestroy()

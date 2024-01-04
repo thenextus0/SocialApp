@@ -1,4 +1,4 @@
-package com.thenextus.socialapp.classes.adapters.diffutil
+package com.thenextus.socialapp.classes.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

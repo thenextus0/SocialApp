@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.thenextus.socialapp.classes.database.entities.Friend
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FriendsDao {
@@ -15,10 +16,10 @@ interface FriendsDao {
     suspend fun deleteFriendShip(friendRowID: String)
 
     @Query("SELECT * FROM Friends WHERE friendUserID=:userID AND apiUserID=:apiUserID")
-    fun getSpecificFriend(userID: String, apiUserID: String): LiveData<Friend>
+    fun getSpecificFriend(userID: String, apiUserID: String): Flow<Friend?>
 
     @Query("SELECT * FROM Friends WHERE friendUserID=:userID")
-    fun getAllFriendsByID(userID: String): LiveData<List<Friend>>
+    fun getAllFriendsByID(userID: String): Flow<List<Friend>>
 
     @Query("SELECT * FROM Friends WHERE (friendUserID = :userID AND apiUserID IN (:userIDList))")
     fun getFriendshipStatus(userID: String, userIDList: List<String>): List<Friend>

@@ -1,17 +1,14 @@
-package com.thenextus.socialapp.classes.adapters.diffutil
+package com.thenextus.socialapp.classes.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.thenextus.socialapp.R
-import com.thenextus.socialapp.classes.adapters.ProfileRecyclerViewAdapter
 import com.thenextus.socialapp.classes.database.entities.ApiUser
 import com.thenextus.socialapp.databinding.ProfileRecyclerviewCardBinding
-import com.thenextus.socialapp.retrofit.model.UserModel
 
 class ProfileRVAdapter(): RecyclerView.Adapter<ProfileRVAdapter.ColumnHolder>() {
 

@@ -8,20 +8,21 @@ import com.thenextus.socialapp.classes.database.entities.ApiUser
 import com.thenextus.socialapp.classes.database.entities.Friend
 import com.thenextus.socialapp.classes.database.entities.User
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 class AppDatabaseRepository(val usersDao: UsersDao, val apiUsersDao: ApiUsersDao, val friendsDao: FriendsDao) {
 
     //Users
 
-    fun getAllUsers(): LiveData<List<User>>? {
+    /*fun getAllUsers(): LiveData<List<User>>? {
         return usersDao.getAllUser()
-    }
+    }*/
 
-    fun getSpesificUser(userID: String): LiveData<User> {
+    fun getSpesificUser(userID: String): Flow<User?> {
         return usersDao.getSpesificUser(userID)
     }
-    fun getSpesificUserByEmail(email: String): LiveData<User>? {
+    fun getSpesificUserByEmail(email: String): Flow<User?> {
         return usersDao.getSpesificUserByEmail(email)
     }
 
@@ -37,14 +38,12 @@ class AppDatabaseRepository(val usersDao: UsersDao, val apiUsersDao: ApiUsersDao
 
     //ApiUsers
 
-    fun getSpecificApiUser(apiUserID: String): LiveData<ApiUser> {
+    fun getSpecificApiUser(apiUserID: String): Flow<ApiUser?> {
         return apiUsersDao.getSpecificApiUser(apiUserID)
     }
 
     suspend fun getUsersByIdList(friendIDList: List<String>): List<ApiUser> {
-        return withContext(Dispatchers.IO) {
-            apiUsersDao.getUsersByIdList(friendIDList)
-        }
+        return withContext(Dispatchers.IO) { apiUsersDao.getUsersByIdList(friendIDList) }
     }
 
     suspend fun insertApiUser(apiUser: ApiUser) {
@@ -63,11 +62,11 @@ class AppDatabaseRepository(val usersDao: UsersDao, val apiUsersDao: ApiUsersDao
         }
     }
 
-    fun getSpecificFriend(userID: String, apiUserID: String): LiveData<Friend> {
+    fun getSpecificFriend(userID: String, apiUserID: String): Flow<Friend?> {
         return friendsDao.getSpecificFriend(userID, apiUserID)
     }
 
-    fun getAllFriendsByID(userID: String): LiveData<List<Friend>> {
+    fun getAllFriendsByID(userID: String): Flow<List<Friend>> {
         return friendsDao.getAllFriendsByID(userID)
     }
 
