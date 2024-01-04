@@ -35,7 +35,8 @@ class ApiRequestUserViewModel(): ViewModel() {
             /*var retrofit = Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
-                .build()*/
+                .build()
+            */
 
             val service = retrofit.create(RandomUserAPI::class.java)
 

@@ -11,7 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.thenextus.socialapp.classes.adapters.MainMenuRecyclerViewAdapter
+import com.thenextus.socialapp.classes.adapters.diffutil.MainMenuRVAdapter
 import com.thenextus.socialapp.classes.database.entities.ApiUser
 import com.thenextus.socialapp.classes.database.entities.Friend
 import com.thenextus.socialapp.classes.socialapp.ServiceLocator
@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 
-class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListener {
+class MainMenuFragment : Fragment(), MainMenuRVAdapter.OnAddClickListener {
 
     private var _binding: FragmentMainMenuBinding? = null
     private val binding get() = _binding!!
@@ -36,13 +36,11 @@ class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListe
     private lateinit var apiUserViewModel: ApiUserViewModel
     private lateinit var friendsViewModel: FriendsViewModel
 
-    private lateinit var adapter: MainMenuRecyclerViewAdapter
+    private lateinit var adapter: MainMenuRVAdapter
 
     private lateinit var eventViewModel: EventViewModel
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    override fun onCreate(savedInstanceState: Bundle?) { super.onCreate(savedInstanceState) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentMainMenuBinding.inflate(inflater, container, false)
@@ -63,8 +61,8 @@ class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListe
         apiRequestUserViewModel.getUsers()
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        adapter = MainMenuRecyclerViewAdapter()
-        adapter.setOnAddClickListener(this)
+        adapter = MainMenuRVAdapter()
+        adapter.setOnClickListener(this)
         binding.recyclerView.adapter = adapter
 
         apiRequestUserViewModel.userListLiveData.observe(viewLifecycleOwner, Observer { userList ->
@@ -74,10 +72,8 @@ class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListe
                 for (i in 0 until userList.size) userIDList.add(userList[i].login.uuid)
 
                 lifecycleScope.launch {
-                    var isFriendList = friendsViewModel.checkFriendship(eventViewModel.userID!!, userIDList)
-
-                    adapter.setUserData(userList, isFriendList)
-                    adapter.notifyDataSetChanged()
+                    val isFriendList = friendsViewModel.checkFriendship(eventViewModel.userID!!, userIDList)
+                    adapter.updateData(userList, isFriendList)
                 }
             }
         })
@@ -87,7 +83,7 @@ class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListe
     }
 
     override fun onAddClick(position: Int) {
-        //add to database
+
         val access = apiRequestUserViewModel.userListLiveData.value!![position]
         val apiUser = ApiUser(access.login.uuid, access.name.first, access.name.last, access.email, access.picture.medium)
         val friend = Friend(UUID.randomUUID().toString(), eventViewModel.userID!!, apiUser.userID)
@@ -100,15 +96,22 @@ class MainMenuFragment : Fragment(), MainMenuRecyclerViewAdapter.OnAddClickListe
             if (specificFriend == null) {
                 friendsViewModel.insertFriend(friend)
                 Toast.makeText(requireContext(), "Arkadaş eklendi!", Toast.LENGTH_SHORT).show()
+
+                apiRequestUserViewModel.userListLiveData.observe(viewLifecycleOwner, Observer { userList ->
+                    if (userList != null) {
+                        val userIDList = arrayListOf<String>()
+                        for (i in 0 until userList.size) { userIDList.add(userList[i].login.uuid) }
+
+                        lifecycleScope.launch {
+                            var isFriendList = friendsViewModel.checkFriendship(eventViewModel.userID!!, userIDList)
+                            adapter.updateData(userList, isFriendList)
+                        }
+                    }
+                })
+
             }
-
-            adapter.setSingleIsFriendData(position)
-            adapter.notifyItemChanged(position)
-
         })
     }
-
-
 
     override fun onDestroy() {
         super.onDestroy()

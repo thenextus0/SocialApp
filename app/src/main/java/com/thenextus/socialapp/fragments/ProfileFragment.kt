@@ -8,6 +8,7 @@ import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -17,6 +18,7 @@ import coil.load
 import com.thenextus.socialapp.LoginActivity
 import com.thenextus.socialapp.R
 import com.thenextus.socialapp.classes.adapters.ProfileRecyclerViewAdapter
+import com.thenextus.socialapp.classes.adapters.diffutil.ProfileRVAdapter
 import com.thenextus.socialapp.classes.socialapp.ServiceLocator
 import com.thenextus.socialapp.classes.viewmodels.ApiUserViewModel
 import com.thenextus.socialapp.classes.viewmodels.EventViewModel
@@ -28,12 +30,12 @@ import com.thenextus.socialapp.classes.viewmodels.factory.FriendsViewModelFactor
 import com.thenextus.socialapp.classes.viewmodels.factory.UserViewModelFactory
 import com.thenextus.socialapp.databinding.FragmentProfileBinding
 
-class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickListener {
+class ProfileFragment : Fragment(), ProfileRVAdapter.OnRemoveClickListener {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var adapter: ProfileRecyclerViewAdapter
+    private lateinit var adapter: ProfileRVAdapter
 
     private lateinit var userViewModel: UserViewModel
 
@@ -42,9 +44,7 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
 
     private lateinit var eventViewModel: EventViewModel
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    override fun onCreate(savedInstanceState: Bundle?) { super.onCreate(savedInstanceState) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
@@ -72,7 +72,7 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
         } else userViewModel.setUserForID(eventViewModel.userID!!)
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        adapter = ProfileRecyclerViewAdapter()
+        adapter = ProfileRVAdapter()
         adapter.setOnRemoveClickListener(this)
         binding.recyclerView.adapter = adapter
 
@@ -82,10 +82,8 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
                 apiUserViewModel.loadUsersByIdList(friendList)
                 apiUserViewModel.allApiUsersByID.observe(viewLifecycleOwner, Observer { apiUsers ->
                     if (apiUsers != null) {
-                        adapter.setData(apiUsers)
-                        adapter.notifyDataSetChanged()
+                        adapter.updateData(apiUsers)
                     }
-
                 })
             }
         })
@@ -117,7 +115,23 @@ class ProfileFragment : Fragment(), ProfileRecyclerViewAdapter.OnRemoveClickList
 
     override fun onRemoveClick(position: Int, apiUserID: String) {
         friendsViewModel.getSpecificFriend(eventViewModel.userID!!, apiUserID).observe(viewLifecycleOwner, Observer {  specificFriend ->
-            if (specificFriend != null) friendsViewModel.deleteFriendship(specificFriend.friendRowID)
+            if (specificFriend != null) {
+                friendsViewModel.deleteFriendship(specificFriend.friendRowID)
+                Toast.makeText(requireContext(), "Arkadaş silindi!", Toast.LENGTH_SHORT).show()
+
+                friendsViewModel.getAllFriendsByID(eventViewModel.userID!!).observe(viewLifecycleOwner, Observer { friendList ->
+                    //println(friendList)
+                    if (friendList != null) {
+                        apiUserViewModel.loadUsersByIdList(friendList)
+                        apiUserViewModel.allApiUsersByID.observe(viewLifecycleOwner, Observer { apiUsers ->
+                                adapter.updateData(apiUsers)
+                        })
+                    }
+                })
+
+
+
+            }
         })
     }
 
