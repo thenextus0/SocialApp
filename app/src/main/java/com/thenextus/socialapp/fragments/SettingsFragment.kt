@@ -1,6 +1,7 @@
 package com.thenextus.socialapp.fragments
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -11,8 +12,10 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.provider.MediaStore
 import android.util.Base64
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -31,6 +35,7 @@ import coil.load
 import com.google.android.material.snackbar.Snackbar
 import com.thenextus.socialapp.LoginActivity
 import com.thenextus.socialapp.R
+import com.thenextus.socialapp.classes.KeyValues
 import com.thenextus.socialapp.classes.database.entities.User
 import com.thenextus.socialapp.classes.socialapp.ServiceLocator
 import com.thenextus.socialapp.classes.viewmodels.EventViewModel
@@ -41,6 +46,7 @@ import com.thenextus.socialapp.databinding.FragmentSettingsBinding
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
+import java.security.Key
 
 class SettingsFragment : Fragment() {
 
@@ -104,6 +110,25 @@ class SettingsFragment : Fragment() {
                             }
                         }
                     }
+
+                    if (savedInstanceState != null) {
+                        val savedPicture = savedInstanceState.getString(KeyValues.SISPicture.key)
+                        val savedFName = savedInstanceState.getString(KeyValues.SISFName.key)
+                        val savedLName = savedInstanceState.getString(KeyValues.SISLName.key)
+                        val savedEmail = savedInstanceState.getString(KeyValues.SISEmail.key)
+
+                        val userBitmapPicture = stringToBitmap(savedPicture)
+                        //val userDrawablePicture = bitmapToDrawable(this@SettingsFragment.context!!, userBitmapPicture!!)
+                        binding.profilePhoto.load(userBitmapPicture) {
+                            crossfade(true)
+                            placeholder(R.drawable.profile)
+                        }
+
+                        binding.firstNameEditText.setText(savedFName)
+                        binding.lastNameEditText.setText(savedLName)
+                        binding.emailEditText.setText(savedEmail)
+                    }
+
                 }
             }
         }
@@ -113,6 +138,17 @@ class SettingsFragment : Fragment() {
 
         eventViewModel.setButtonVisibility(false)
         eventViewModel.setNavigationVisibility(false)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        val bitmapImage = drawableToBitmap(binding.profilePhoto.drawable)
+        val stringImage = bitmapToString(bitmapImage!!)
+
+        outState.putString(KeyValues.SISPicture.key, stringImage)
+        outState.putString(KeyValues.SISFName.key, binding.firstNameEditText.text.toString())
+        outState.putString(KeyValues.SISLName.key, binding.lastNameEditText.text.toString())
+        outState.putString(KeyValues.SISEmail.key, binding.emailEditText.text.toString())
+        super.onSaveInstanceState(outState)
     }
 
     private fun changeImage(view: View) {
@@ -276,9 +312,26 @@ class SettingsFragment : Fragment() {
             .decodeByteArray(decodedByte, 0, decodedByte.size)
     }
 
+    fun makeSmallerBitmap(image: Bitmap, maximumSize : Int) : Bitmap {
+        var width = image.width
+        var height = image.height
+
+        val bitmapRatio : Double = width.toDouble() / height.toDouble()
+        if (bitmapRatio > 1) {
+            width = maximumSize
+            val scaledHeight = width / bitmapRatio
+            height = scaledHeight.toInt()
+        } else {
+            height = maximumSize
+            val scaledWidth = height * bitmapRatio
+            width = scaledWidth.toInt()
+        }
+        return Bitmap.createScaledBitmap(image,width,height,true)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        _binding = null
+        //_binding = null
     }
 
 }
